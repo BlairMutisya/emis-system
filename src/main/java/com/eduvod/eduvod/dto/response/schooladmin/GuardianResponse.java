@@ -1,0 +1,4 @@
+package com.eduvod.eduvod.dto.response.schooladmin;
+
+public class GuardianResponse {
+}

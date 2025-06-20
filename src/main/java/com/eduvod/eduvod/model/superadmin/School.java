@@ -1,0 +1,62 @@
+package com.eduvod.eduvod.model.superadmin;
+
+import com.eduvod.eduvod.model.shared.User;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.HashSet;
+import java.util.Set;
+
+@Entity
+@Table(name = "schools")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class School {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true, nullable = false)
+    private String moeRegNo;
+
+    private String kpsaRegNo;
+    private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "curriculum_id")
+    private CurriculumType curriculum;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private SchoolCategory category;
+
+    @ManyToOne
+    @JoinColumn(name = "type_id")
+    private SchoolType type;
+
+    private String composition;
+    private String mobile;
+    private String email;
+
+    private String region;
+    private String diocese;
+    private String county;
+    private String subCounty;
+    private String location;
+    private String address;
+    private String website;
+
+    @ManyToMany
+    @JoinTable(
+            name = "school_admins",
+            joinColumns = @JoinColumn(name = "school_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> admins = new HashSet<>();
+}
