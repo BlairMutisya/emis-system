@@ -1,10 +1,13 @@
 package com.eduvod.eduvod.model.shared;
 
+import com.eduvod.eduvod.enums.UserStatus;
+import com.eduvod.eduvod.model.superadmin.SchoolAdmin;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -30,37 +33,40 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private RoleType role;
 
-    private boolean active;
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
 
-    // 👇 Implementing UserDetails methods
+    @OneToOne(mappedBy = "user")
+    private SchoolAdmin schoolAdmin;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(() -> "ROLE_" + role.name()); // 👈 this makes Spring happy
+        return Collections.singleton(() -> "ROLE_" + role.name());
     }
 
     @Override
     public String getUsername() {
-        return this.email; // 👈 or return username, depending on login preference
+        return this.email;
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+//    @Override
+//    public boolean isAccountNonExpired() {
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean isAccountNonLocked() {
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean isCredentialsNonExpired() {
+//        return true;
+//    }
 
     @Override
     public boolean isEnabled() {
-        return this.active;
+        return this.status == UserStatus.ACTIVE;
     }
+
 }

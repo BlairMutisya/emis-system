@@ -3,6 +3,7 @@ package com.eduvod.eduvod.security.service;
 import com.eduvod.eduvod.dto.auth.AuthenticationRequest;
 import com.eduvod.eduvod.dto.auth.AuthenticationResponse;
 import com.eduvod.eduvod.dto.auth.RegisterRequest;
+import com.eduvod.eduvod.enums.UserStatus;
 import com.eduvod.eduvod.model.shared.RoleType;
 import com.eduvod.eduvod.model.shared.User;
 import com.eduvod.eduvod.repository.shared.UserRepository;
@@ -29,7 +30,7 @@ public class AuthenticationService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(RoleType.SUPER_ADMIN)
-                .active(true)
+                .status(UserStatus.ACTIVE)
                 .build();
         userRepository.save(user);
 
@@ -44,7 +45,7 @@ public class AuthenticationService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(RoleType.SCHOOL_ADMIN)
-                .active(true)
+                .status(UserStatus.ACTIVE)
                 .build();
         userRepository.save(user);
 
@@ -54,15 +55,25 @@ public class AuthenticationService {
 
     // Common Login
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        var user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        //Block login if status is BLOCKED or DELETED
+        if (user.getStatus() == UserStatus.BLOCKED) {
+            throw new RuntimeException("Your account is blocked. Contact support.");
+        }
+        if (user.getStatus() == UserStatus.DELETED) {
+            throw new RuntimeException("Your account has been deleted.");
+        }
+
+        // Proceed if ACTIVE
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
 
-        var user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
         var jwt = jwtService.generateToken(user);
         return AuthenticationResponse.builder().token(jwt).build();
     }
+
 }
 

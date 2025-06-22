@@ -2,7 +2,7 @@ package com.eduvod.eduvod.service.superadmin.impl;
 
 import com.eduvod.eduvod.dto.request.superadmin.*;
 import com.eduvod.eduvod.dto.response.superadmin.SchoolAdminResponse;
-import com.eduvod.eduvod.enums.SchoolAdminStatus;
+import com.eduvod.eduvod.enums.UserStatus;
 import com.eduvod.eduvod.model.superadmin.SchoolAdmin;
 import com.eduvod.eduvod.repository.superadmin.*;
 import com.eduvod.eduvod.service.superadmin.SchoolAdminService;
@@ -28,7 +28,7 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .status(SchoolAdminStatus.ACTIVE)
+                .status(UserStatus.ACTIVE)
                 .build();
 
         if (request.getSchoolId() != null) {
@@ -51,7 +51,7 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
 
 
     @Override
-    public void updateStatus(Long adminId, SchoolAdminStatus status) {
+    public void updateStatus(Long adminId, UserStatus status) {
         var admin = getById(adminId);
         admin.setStatus(status);
         repository.save(admin);

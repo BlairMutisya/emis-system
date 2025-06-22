@@ -1,9 +1,10 @@
 package com.eduvod.eduvod.model.superadmin;
 
-import com.eduvod.eduvod.enums.SchoolAdminStatus;
+import com.eduvod.eduvod.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import com.eduvod.eduvod.model.shared.User;
 
 @Entity
 @Getter
@@ -28,7 +29,7 @@ public class SchoolAdmin {
     private School school;
 
     @Enumerated(EnumType.STRING)
-    private SchoolAdminStatus status;
+    private UserStatus status;
 
     private LocalDateTime deletedAt;
 
@@ -39,7 +40,7 @@ public class SchoolAdmin {
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
-        this.status = SchoolAdminStatus.ACTIVE;
+        this.status = UserStatus.ACTIVE;
     }
 
     @PreUpdate
@@ -50,4 +51,9 @@ public class SchoolAdmin {
     public boolean isDeleted() {
         return deletedAt != null;
     }
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
 }

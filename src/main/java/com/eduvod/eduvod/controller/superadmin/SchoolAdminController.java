@@ -4,7 +4,7 @@ import com.eduvod.eduvod.dto.request.superadmin.AssignSchoolRequest;
 import com.eduvod.eduvod.dto.request.superadmin.SchoolAdminRequest;
 import com.eduvod.eduvod.dto.request.superadmin.UpdateSchoolAdminPasswordRequest;
 import com.eduvod.eduvod.dto.response.superadmin.SchoolAdminResponse;
-import com.eduvod.eduvod.enums.SchoolAdminStatus;
+import com.eduvod.eduvod.enums.UserStatus;
 import com.eduvod.eduvod.service.superadmin.SchoolAdminService;
 import com.eduvod.eduvod.dto.response.BaseApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +44,7 @@ public class SchoolAdminController {
     @PutMapping("/{id}/status")
     public ResponseEntity<BaseApiResponse<Void>> updateStatus(
             @PathVariable Long id,
-            @RequestParam SchoolAdminStatus status
+            @RequestParam UserStatus status
     ) {
         schoolAdminService.updateStatus(id, status);
         return ResponseEntity.ok(new BaseApiResponse<>(200, "School admin status updated"));

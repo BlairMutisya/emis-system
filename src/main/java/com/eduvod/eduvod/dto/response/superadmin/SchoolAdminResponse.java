@@ -1,6 +1,6 @@
 package com.eduvod.eduvod.dto.response.superadmin;
 
-import com.eduvod.eduvod.enums.SchoolAdminStatus;
+import com.eduvod.eduvod.enums.UserStatus;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,5 +11,5 @@ public class SchoolAdminResponse {
     private String username;
     private String email;
     private String schoolName;
-    private SchoolAdminStatus status;
+    private UserStatus status;
 }

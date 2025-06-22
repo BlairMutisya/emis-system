@@ -1,4 +1,8 @@
 package com.eduvod.eduvod.service.superadmin;
 
-public class UserService {
+import com.eduvod.eduvod.dto.response.superadmin.UserResponse;
+import java.util.List;
+
+public interface UserService {
+    List<UserResponse> getAllUsers();
 }
