@@ -1,5 +1,6 @@
 package com.eduvod.eduvod.model.superadmin;
 
+import com.eduvod.eduvod.model.shared.BaseEntity;
 import com.eduvod.eduvod.model.shared.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -16,7 +17,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class School {
+public class School extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

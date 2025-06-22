@@ -1,6 +1,7 @@
 package com.eduvod.eduvod.model.superadmin;
 
 import com.eduvod.eduvod.enums.UserStatus;
+import com.eduvod.eduvod.model.shared.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -12,7 +13,7 @@ import com.eduvod.eduvod.model.shared.User;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SchoolAdmin {
+public class SchoolAdmin extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
