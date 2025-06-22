@@ -17,4 +17,11 @@ public class BaseApiResponse<T> {
 
     @Schema(description = "Response data payload")
     private T data;
+
+    // Add this constructor for use when no data is returned
+    public BaseApiResponse(int statusCode, String message) {
+        this.statusCode = statusCode;
+        this.message = message;
+        this.data = null;
+    }
 }
