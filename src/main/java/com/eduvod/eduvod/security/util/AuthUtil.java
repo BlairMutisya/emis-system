@@ -15,12 +15,21 @@ public class AuthUtil {
     private final UserRepository userRepository;
     private final SchoolAdminRepository schoolAdminRepository;
 
-    public SchoolAdmin getCurrentSchoolAdmin() {
+    /**
+     * Retrieves the currently authenticated user from the Spring Security context.
+     */
+    public User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
+    }
 
+    /**
+     * Retrieves the SchoolAdmin associated with the currently authenticated user.
+     */
+    public SchoolAdmin getCurrentSchoolAdmin() {
+        User user = getCurrentUser();
         return schoolAdminRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("School Admin not found for user"));
+                .orElseThrow(() -> new RuntimeException("School Admin not found for user: " + user.getEmail()));
     }
 }

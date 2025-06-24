@@ -1,4 +1,12 @@
 package com.eduvod.eduvod.service.schooladmin;
 
-public class ClassService {
+import com.eduvod.eduvod.dto.request.schooladmin.CreateClassRequest;
+import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.schooladmin.ClassResponse;
+
+import java.util.List;
+
+public interface ClassService {
+    BaseApiResponse<ClassResponse> createClass(CreateClassRequest request);
+    BaseApiResponse<List<ClassResponse>> getAllClassesForSchool();
 }
