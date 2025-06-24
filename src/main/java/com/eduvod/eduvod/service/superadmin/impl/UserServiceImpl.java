@@ -9,6 +9,7 @@ import com.eduvod.eduvod.service.superadmin.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,16 +26,30 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public void changeStatus(Long userId, UserStatus status) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setStatus(status);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void softDeleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setDeletedAt(LocalDateTime.now());
+        userRepository.save(user);
+    }
+
     private UserResponse mapToResponse(User user) {
-        var isSchoolAdmin = user.getRole() == RoleType.SCHOOL_ADMIN;
-
-
+        boolean isSchoolAdmin = user.getRole() == RoleType.SCHOOL_ADMIN;
         return UserResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .role(user.getRole())
-                .status(user.isEnabled() ? UserStatus.ACTIVE : UserStatus.BLOCKED)
+                .status(user.getStatus())
                 .schoolName(isSchoolAdmin && user.getSchoolAdmin() != null && user.getSchoolAdmin().getSchool() != null
                         ? user.getSchoolAdmin().getSchool().getName()
                         : null)

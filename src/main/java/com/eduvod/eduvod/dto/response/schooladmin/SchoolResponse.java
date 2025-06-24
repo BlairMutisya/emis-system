@@ -1,4 +1,4 @@
-package com.eduvod.eduvod.dto.response.superadmin;
+package com.eduvod.eduvod.dto.response.schooladmin;
 
 import lombok.Builder;
 import lombok.Data;
@@ -7,11 +7,12 @@ import lombok.Data;
 @Builder
 public class SchoolResponse {
     private Long id;
-    private String moeRegNo;
     private String name;
     private String email;
     private String phone;
-    private String curriculumType;
+    private String address;
+    private String logoUrl;
     private String category;
-    private String type;
+    private String curriculumType;
+    private String schoolType;
 }

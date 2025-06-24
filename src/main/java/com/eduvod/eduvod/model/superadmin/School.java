@@ -42,7 +42,7 @@ public class School extends BaseEntity {
     private SchoolType type;
 
     private String composition;
-    private String mobile;
+    private String phone;
     private String email;
 
     private String region;
@@ -53,6 +53,8 @@ public class School extends BaseEntity {
     private String address;
     private String website;
 
+    private String logoUrl;
+
     @ManyToMany
     @JoinTable(
             name = "school_admins",
@@ -60,4 +62,5 @@ public class School extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> admins = new HashSet<>();
+
 }

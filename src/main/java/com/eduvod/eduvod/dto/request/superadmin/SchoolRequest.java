@@ -11,7 +11,7 @@ public class SchoolRequest {
     private String category;
     private String type;
     private String composition;
-    private String mobile;
+    private String phone;
     private String email;
     private String region;
     private String diocese;

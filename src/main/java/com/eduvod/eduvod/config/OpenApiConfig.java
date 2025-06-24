@@ -43,4 +43,12 @@ public class OpenApiConfig {
                 .pathsToMatch("/api/v1/schooladmin/**")
                 .build();
     }
+
+    @Bean
+    public GroupedOpenApi authApi() {
+        return GroupedOpenApi.builder()
+                .group("auth")
+                .pathsToMatch("/api/v1/auth/**")
+                .build();
+    }
 }

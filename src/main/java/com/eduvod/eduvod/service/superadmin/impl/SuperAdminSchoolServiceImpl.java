@@ -6,14 +6,12 @@ import com.eduvod.eduvod.model.superadmin.*;
 import com.eduvod.eduvod.repository.superadmin.*;
 import com.eduvod.eduvod.service.superadmin.SchoolService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -24,7 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class SchoolServiceImpl implements SchoolService {
+public class SuperAdminSchoolServiceImpl implements SchoolService {
 
     private final SchoolRepository schoolRepository;
     private final CurriculumTypeRepository curriculumTypeRepository;
@@ -48,7 +46,7 @@ public class SchoolServiceImpl implements SchoolService {
                 .category(category)
                 .type(type)
                 .composition(request.getComposition())
-                .mobile(request.getMobile())
+                .phone(request.getPhone())
                 .email(request.getEmail())
                 .region(request.getRegion())
                 .diocese(request.getDiocese())
@@ -66,7 +64,7 @@ public class SchoolServiceImpl implements SchoolService {
                 .moeRegNo(school.getMoeRegNo())
                 .name(school.getName())
                 .email(school.getEmail())
-                .mobile(school.getMobile())
+                .phone(school.getPhone())
                 .curriculumType(curriculum.getName())
                 .category(category.getName())
                 .type(type.getName())
@@ -80,7 +78,7 @@ public class SchoolServiceImpl implements SchoolService {
                 .moeRegNo(school.getMoeRegNo())
                 .name(school.getName())
                 .email(school.getEmail())
-                .mobile(school.getMobile())
+                .phone(school.getPhone())
                 .curriculumType(school.getCurriculum().getName())
                 .category(school.getCategory().getName())
                 .type(school.getType().getName())
@@ -102,7 +100,7 @@ public class SchoolServiceImpl implements SchoolService {
                 String categoryName = getCellValue(row.getCell(4));
                 String typeName = getCellValue(row.getCell(5));
                 String composition = getCellValue(row.getCell(6));
-                String mobile = getCellValue(row.getCell(7));
+                String phone = getCellValue(row.getCell(7));
                 String email = getCellValue(row.getCell(8));
                 String region = getCellValue(row.getCell(9));
                 String diocese = getCellValue(row.getCell(10));
@@ -126,7 +124,7 @@ public class SchoolServiceImpl implements SchoolService {
                         .category(category)
                         .type(type)
                         .composition(composition)
-                        .mobile(mobile)
+                        .phone(phone)
                         .email(email)
                         .region(region)
                         .diocese(diocese)
@@ -161,7 +159,7 @@ public class SchoolServiceImpl implements SchoolService {
 
             String[] headers = {
                     "MoeRegNo", "KpsaRegNo", "Name", "CurriculumType", "Category",
-                    "Type", "Composition", "Mobile", "Email", "Region", "Diocese",
+                    "Type", "Composition", "Phone", "Email", "Region", "Diocese",
                     "County", "SubCounty", "Location", "Address", "Website"
             };
 

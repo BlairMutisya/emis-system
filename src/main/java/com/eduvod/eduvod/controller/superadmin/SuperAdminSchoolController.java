@@ -22,7 +22,7 @@ import java.util.List;
 @RequestMapping("/api/v1/superadmin/schools")
 @RequiredArgsConstructor
 @Tag(name = "School Management", description = "Super Admin - School CRUD and import")
-public class SchoolController {
+public class SuperAdminSchoolController {
 
     private final SchoolService schoolService;
 

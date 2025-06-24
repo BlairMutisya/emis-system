@@ -24,4 +24,30 @@ public class BaseApiResponse<T> {
         this.message = message;
         this.data = null;
     }
+    // Static factory method for success response
+    public static <T> BaseApiResponse<T> success(T data) {
+        return BaseApiResponse.<T>builder()
+                .statusCode(200)
+                .message("Success")
+                .data(data)
+                .build();
+    }
+
+    // Static factory method for custom success with message
+    public static <T> BaseApiResponse<T> success(String message, T data) {
+        return BaseApiResponse.<T>builder()
+                .statusCode(200)
+                .message(message)
+                .data(data)
+                .build();
+    }
+
+    // Static factory method for error response
+    public static <T> BaseApiResponse<T> error(String message) {
+        return BaseApiResponse.<T>builder()
+                .statusCode(400)
+                .message(message)
+                .data(null)
+                .build();
+    }
 }
