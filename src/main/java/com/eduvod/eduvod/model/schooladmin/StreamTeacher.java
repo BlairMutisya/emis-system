@@ -1,25 +1,28 @@
 package com.eduvod.eduvod.model.schooladmin;
-
 import com.eduvod.eduvod.model.shared.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+
 @Entity
-@Table(name = "subjects")
+@Table(name = "stream_teachers")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Subject extends BaseEntity {
-
+public class StreamTeacher extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String name;
+    @ManyToOne(optional = false)
+    private Teacher teacher;
 
-    private boolean compulsory;
+    @ManyToOne(optional = false)
+    private Stream stream;
 
-    private boolean deleted = false;
+    private boolean deleted;
+
+
 }
+
