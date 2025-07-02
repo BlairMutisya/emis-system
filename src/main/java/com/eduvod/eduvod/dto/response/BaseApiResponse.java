@@ -41,6 +41,14 @@ public class BaseApiResponse<T> {
                 .data(data)
                 .build();
     }
+    // Static factory method for success with no data
+    public static <T> BaseApiResponse<T> success() {
+        return BaseApiResponse.<T>builder()
+                .statusCode(200)
+                .message("Success")
+                .data(null)
+                .build();
+    }
 
     // Static factory method for error response
     public static <T> BaseApiResponse<T> error(String message) {

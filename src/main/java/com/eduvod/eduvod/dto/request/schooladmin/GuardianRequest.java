@@ -1,13 +1,10 @@
-package com.eduvod.eduvod.dto.response.schooladmin;
+package com.eduvod.eduvod.dto.request.schooladmin;
 
 import com.eduvod.eduvod.enums.Gender;
-import lombok.Builder;
 import lombok.Data;
 
 @Data
-@Builder
-public class GuardianResponse {
-    private Long id;
+public class GuardianRequest {
     private String firstName;
     private String lastName;
     private String relationship;
