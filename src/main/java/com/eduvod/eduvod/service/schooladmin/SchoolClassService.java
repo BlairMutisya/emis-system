@@ -6,7 +6,7 @@ import com.eduvod.eduvod.dto.response.schooladmin.ClassResponse;
 
 import java.util.List;
 
-public interface ClassService {
+public interface SchoolClassService {
     BaseApiResponse<ClassResponse> createClass(CreateClassRequest request);
     BaseApiResponse<List<ClassResponse>> getAllClassesForSchool();
 }

@@ -20,5 +20,6 @@ public class Stream extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "class_id")
-    private Class clazz;
+    private SchoolClass schoolClass;
+
 }

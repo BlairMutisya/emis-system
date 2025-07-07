@@ -2,7 +2,6 @@ package com.eduvod.eduvod.service.schooladmin.impl;
 
 import com.eduvod.eduvod.dto.response.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.schooladmin.SchoolAdminDashboardResponse;
-import com.eduvod.eduvod.enums.Gender;
 import com.eduvod.eduvod.model.schooladmin.Student;
 import com.eduvod.eduvod.model.schooladmin.Teacher;
 import com.eduvod.eduvod.repository.schooladmin.*;
@@ -22,14 +21,14 @@ public class SchoolAdminDashboardServiceImpl implements SchoolAdminDashboardServ
     private final TeacherRepository teacherRepository;
     private final GuardianRepository guardianRepository;
     private final StreamRepository streamRepository;
-    private final ClassRepository classRepository;
+    private final SchoolClassRepository schoolClassRepository;
     private final AuthUtil authUtil;
 
     @Override
     public BaseApiResponse<SchoolAdminDashboardResponse> getDashboardStats() {
         var school = authUtil.getCurrentSchoolAdmin().getSchool();
 
-        List<Student> students = studentRepository.findByStream_Class_School(school);
+        List<Student> students = studentRepository.findByStream_SchoolClass_School(school);
         List<Teacher> teachers = teacherRepository.findBySchool(school);
 
         // Students by gender
@@ -46,13 +45,13 @@ public class SchoolAdminDashboardServiceImpl implements SchoolAdminDashboardServ
                 .collect(Collectors.groupingBy(t -> t.getGender() != null ? t.getGender().name() : "UNSPECIFIED", Collectors.counting()));
 
         // Guardians count
-        long guardianCount = guardianRepository.countBySchool(school);
+        long guardianCount = guardianRepository.countByStudentSchool(school);
 
         // Students per class
         Map<String, Long> studentsPerClass = students.stream()
-                .filter(s -> s.getStream() != null && s.getStream().getClazz() != null)
+                .filter(s -> s.getStream() != null && s.getStream().getSchoolClass() != null)
                 .collect(Collectors.groupingBy(
-                        s -> s.getStream().getClazz().getName(),
+                        s -> s.getStream().getSchoolClass().getName(),
                         Collectors.counting()
                 ));
 

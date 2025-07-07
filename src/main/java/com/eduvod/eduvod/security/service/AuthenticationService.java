@@ -31,12 +31,14 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(RoleType.SUPER_ADMIN)
                 .status(UserStatus.ACTIVE)
+                .active(true)
                 .build();
         userRepository.save(user);
 
         var jwt = jwtService.generateToken(user);
         return AuthenticationResponse.builder().token(jwt).build();
     }
+
 
     // SchoolAdmin Registration
     public AuthenticationResponse registerSchoolAdmin(RegisterRequest request) {
@@ -46,12 +48,14 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(RoleType.SCHOOL_ADMIN)
                 .status(UserStatus.ACTIVE)
+                .active(true)
                 .build();
         userRepository.save(user);
 
         var jwt = jwtService.generateToken(user);
         return AuthenticationResponse.builder().token(jwt).build();
     }
+
 
     // Common Login
     public AuthenticationResponse authenticate(AuthenticationRequest request) {

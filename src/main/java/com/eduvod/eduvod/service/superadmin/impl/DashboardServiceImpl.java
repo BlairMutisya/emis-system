@@ -3,13 +3,11 @@ package com.eduvod.eduvod.service.superadmin.impl;
 import com.eduvod.eduvod.dto.response.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.superadmin.DashboardResponse;
 import com.eduvod.eduvod.enums.Gender;
-import com.eduvod.eduvod.model.schooladmin.Student;
 import com.eduvod.eduvod.repository.schooladmin.*;
 import com.eduvod.eduvod.service.superadmin.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,7 +18,7 @@ public class DashboardServiceImpl implements DashboardService {
     private final StudentRepository studentRepository;
     private final GuardianRepository guardianRepository;
     private final TeacherRepository teacherRepository;
-    private final ClassRepository classRepository;
+    private final SchoolClassRepository schoolClassRepository;
     private final StreamRepository streamRepository;
 
     @Override
@@ -53,8 +51,8 @@ public class DashboardServiceImpl implements DashboardService {
         long guardianCount = guardianRepository.count();
 
         // Students per class
-        classRepository.findAll().forEach(clazz -> {
-            long count = studentRepository.countByStream_Class_Id(clazz.getId());
+        schoolClassRepository.findAll().forEach(clazz -> {
+            long count = studentRepository.countByStream_SchoolClass_Id(clazz.getId());
             studentsPerClass.put(clazz.getName(), count);
         });
 

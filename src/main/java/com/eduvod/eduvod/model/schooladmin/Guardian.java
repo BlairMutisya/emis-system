@@ -1,6 +1,7 @@
 package com.eduvod.eduvod.model.schooladmin;
 
 import com.eduvod.eduvod.enums.Gender;
+import com.eduvod.eduvod.model.superadmin.School;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,4 +30,14 @@ public class Guardian {
     private Gender gender;
 
     private String emergencyContact;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "student_id")
+    private Student student;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "school_id")
+    private School school;
+
+
 }

@@ -4,6 +4,11 @@ import com.eduvod.eduvod.dto.request.superadmin.TypeRequest;
 import com.eduvod.eduvod.dto.response.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.superadmin.TypeResponse;
 import com.eduvod.eduvod.service.superadmin.SchoolCategoryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +24,11 @@ public class SchoolCategoryController {
 
     private final SchoolCategoryService service;
 
+    @Operation(summary = "Create a new school category")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "School category created successfully",
+                    content = @Content(schema = @Schema(implementation = TypeResponse.class)))
+    })
     @PostMapping
     public ResponseEntity<BaseApiResponse<TypeResponse>> create(@RequestBody TypeRequest request) {
         TypeResponse response = service.create(request);
@@ -29,6 +39,11 @@ public class SchoolCategoryController {
                 .build());
     }
 
+    @Operation(summary = "Get all school categories")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of all school categories",
+                    content = @Content(schema = @Schema(implementation = TypeResponse.class)))
+    })
     @GetMapping
     public ResponseEntity<BaseApiResponse<List<TypeResponse>>> getAll() {
         return ResponseEntity.ok(BaseApiResponse.<List<TypeResponse>>builder()

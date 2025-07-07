@@ -141,4 +141,8 @@ public class User implements UserDetails {
 
     @OneToOne(mappedBy = "user")
     private SchoolAdmin schoolAdmin;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean active = true;
 }
