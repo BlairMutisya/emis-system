@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CountyServiceImpl implements CountyService {
@@ -26,10 +27,13 @@ public class CountyServiceImpl implements CountyService {
     public BaseApiResponse<CountyResponse> createCounty(CountyRequest request) {
         Region region = regionRepository.findById(request.getRegionId())
                 .orElseThrow(() -> new RuntimeException("Region not found"));
+
         County county = County.builder()
+                .code(request.getCode())
                 .name(request.getName())
                 .region(region)
                 .build();
+
         return new BaseApiResponse<>(201, "County created", mapToResponse(countyRepository.save(county)));
     }
 
@@ -37,11 +41,14 @@ public class CountyServiceImpl implements CountyService {
     public BaseApiResponse<CountyResponse> updateCounty(Long id, CountyRequest request) {
         County county = countyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("County not found"));
+
         Region region = regionRepository.findById(request.getRegionId())
                 .orElseThrow(() -> new RuntimeException("Region not found"));
 
+        county.setCode(request.getCode());
         county.setName(request.getName());
         county.setRegion(region);
+
         return new BaseApiResponse<>(200, "County updated", mapToResponse(countyRepository.save(county)));
     }
 
@@ -94,12 +101,13 @@ public class CountyServiceImpl implements CountyService {
         return new BaseApiResponse<>(200, "Subcounties for county fetched", subCounties);
     }
 
-
     private CountyResponse mapToResponse(County county) {
         return CountyResponse.builder()
                 .id(county.getId())
+                .code(county.getCode())
                 .name(county.getName())
                 .regionId(county.getRegion().getId())
+                .regionName(county.getRegion().getName())
                 .build();
     }
 }

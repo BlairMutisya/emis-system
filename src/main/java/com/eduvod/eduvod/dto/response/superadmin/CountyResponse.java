@@ -7,6 +7,7 @@ import lombok.Data;
 @Builder
 public class CountyResponse {
     private Long id;
+    private Integer code;
     private String name;
     private Long regionId;
     private String regionName;

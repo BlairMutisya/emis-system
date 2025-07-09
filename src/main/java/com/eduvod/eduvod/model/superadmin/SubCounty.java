@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "sub_counties")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

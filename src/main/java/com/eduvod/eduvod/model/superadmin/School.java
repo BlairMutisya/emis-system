@@ -40,7 +40,6 @@ public class School extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "type_id")
     private SchoolType type;
-
     private String composition;
     private String phone;
     private String email;

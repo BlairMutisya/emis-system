@@ -6,6 +6,9 @@ import lombok.Data;
 
 @Data
 public class CountyRequest {
+    @NotNull(message = "County code is required")
+    private Integer code;
+
     @NotBlank(message = "County name is required")
     private String name;
 

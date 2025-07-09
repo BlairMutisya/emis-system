@@ -15,6 +15,6 @@ public class UserResponse {
     private String username;
     private String email;
     private RoleType role;
-    private String schoolName; // Only for School Admins
-    private UserStatus status; // ACTIVE / BLOCKED / DELETED or other per role
+    private String schoolName;
+    private UserStatus status;
 }

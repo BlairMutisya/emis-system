@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "regions")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

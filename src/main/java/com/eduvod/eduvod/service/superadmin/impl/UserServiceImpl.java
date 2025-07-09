@@ -44,15 +44,19 @@ public class UserServiceImpl implements UserService {
 
     private UserResponse mapToResponse(User user) {
         boolean isSchoolAdmin = user.getRole() == RoleType.SCHOOL_ADMIN;
+
         return UserResponse.builder()
                 .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
+                .username(user.getActualUsername()) // 👈 actual username from DB
+                .email(user.getEmail())             // 👈 email used for login
                 .role(user.getRole())
                 .status(user.getStatus())
-                .schoolName(isSchoolAdmin && user.getSchoolAdmin() != null && user.getSchoolAdmin().getSchool() != null
-                        ? user.getSchoolAdmin().getSchool().getName()
-                        : null)
+                .schoolName(
+                        isSchoolAdmin && user.getSchoolAdmin() != null && user.getSchoolAdmin().getSchool() != null
+                                ? user.getSchoolAdmin().getSchool().getName()
+                                : null
+                )
                 .build();
     }
+
 }

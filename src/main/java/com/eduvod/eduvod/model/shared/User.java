@@ -73,4 +73,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     @Builder.Default
     private boolean active = true;
+
+    public String getActualUsername() {
+        return this.username;
+    }
+
 }

@@ -53,6 +53,7 @@ public class SecurityConfig {
                                 "/webjars/**",
                                 "/configuration/**",
                                 "/api/v1/auth/**"
+//                                "/api/v1/superadmin/**"
                         ).permitAll()
 
                         // Role-based secured endpoints

@@ -9,11 +9,16 @@ import java.util.List;
 
 public interface CountyService {
     BaseApiResponse<CountyResponse> createCounty(CountyRequest request);
-    BaseApiResponse<CountyResponse> updateCounty(Long id, CountyRequest request);
-    BaseApiResponse<String> deleteCounty(Long id);
-    BaseApiResponse<CountyResponse> getByCountyId(Long id);
-    BaseApiResponse<List<CountyResponse>> getAllCounties();
-    BaseApiResponse<List<CountyResponse>> getByRegionId(Long regionId);
-    BaseApiResponse<List<SubCountyResponse>> getSubCountiesByCountyId(Long countyId);
 
+    BaseApiResponse<CountyResponse> updateCounty(Long id, CountyRequest request);
+
+    BaseApiResponse<String> deleteCounty(Long id);
+
+    BaseApiResponse<CountyResponse> getByCountyId(Long id);
+
+    BaseApiResponse<List<CountyResponse>> getAllCounties();
+
+    BaseApiResponse<List<CountyResponse>> getByRegionId(Long regionId);
+
+    BaseApiResponse<List<SubCountyResponse>> getSubCountiesByCountyId(Long countyId);
 }
