@@ -45,10 +45,18 @@ public class School extends BaseEntity {
     private String phone;
     private String email;
 
-    private String region;
-    private String diocese;
-    private String county;
-    private String subCounty;
+    @ManyToOne
+    @JoinColumn(name = "region_id")
+    private Region region;
+
+    @ManyToOne
+    @JoinColumn(name = "county_id")
+    private County county;
+
+    @ManyToOne
+    @JoinColumn(name = "sub_county_id")
+    private SubCounty subCounty;
+
     private String location;
     private String address;
     private String website;

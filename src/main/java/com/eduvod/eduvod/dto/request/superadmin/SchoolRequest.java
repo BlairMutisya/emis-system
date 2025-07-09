@@ -13,10 +13,9 @@ public class SchoolRequest {
     private String composition;
     private String phone;
     private String email;
-    private String region;
-    private String diocese;
-    private String county;
-    private String subCounty;
+    private Long regionId;
+    private Long countyId;
+    private Long subCountyId;
     private String location;
     private String address;
     private String website;

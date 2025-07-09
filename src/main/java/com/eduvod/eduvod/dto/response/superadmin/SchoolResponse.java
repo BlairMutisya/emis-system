@@ -8,6 +8,7 @@ import lombok.Data;
 public class SchoolResponse {
     private Long id;
     private String moeRegNo;
+    private String kpsaRegNo;
     private String name;
     private String email;
     private String phone;

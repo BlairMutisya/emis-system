@@ -10,9 +10,12 @@ import com.eduvod.eduvod.repository.schooladmin.GuardianRepository;
 import com.eduvod.eduvod.repository.schooladmin.StreamRepository;
 import com.eduvod.eduvod.repository.schooladmin.StudentRepository;
 import com.eduvod.eduvod.service.schooladmin.StudentService;
+import com.eduvod.eduvod.util.ExcelStudentParserUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -118,6 +121,40 @@ public class StudentServiceImpl implements StudentService {
                 .toList();
 
         return BaseApiResponse.success("Students fetched successfully", responses);
+    }
+    @Override
+    public BaseApiResponse<String> importStudents(Long streamId, MultipartFile file) throws Exception {
+        var stream = streamRepository.findById(streamId)
+                .orElseThrow(() -> new RuntimeException("Stream not found"));
+
+        List<StudentRequest> studentRequests = ExcelStudentParserUtil.parse(file);
+        List<Student> studentsToSave = new ArrayList<>();
+
+        for (StudentRequest req : studentRequests) {
+            Student student = Student.builder()
+                    .admissionNo(req.getAdmissionNo())
+                    .nemisNo(req.getNemisNo())
+                    .admissionDate(req.getAdmissionDate())
+                    .firstName(req.getFirstName())
+                    .middleName(req.getMiddleName())
+                    .lastName(req.getLastName())
+                    .dateOfBirth(req.getDateOfBirth())
+                    .email(req.getEmail())
+                    .gender(req.getGender())
+                    .bloodGroup(req.getBloodGroup())
+                    .nationality(req.getNationality())
+                    .city(req.getCity())
+                    .addressLine1(req.getAddressLine1())
+                    .phone(req.getPhone())
+                    .differentlyAbled(req.isDifferentlyAbled())
+                    .stream(stream)
+                    .build();
+
+            studentsToSave.add(student);
+        }
+
+        studentRepository.saveAll(studentsToSave);
+        return new BaseApiResponse<>(201, "Students imported successfully", "Imported " + studentsToSave.size() + " students");
     }
 
 

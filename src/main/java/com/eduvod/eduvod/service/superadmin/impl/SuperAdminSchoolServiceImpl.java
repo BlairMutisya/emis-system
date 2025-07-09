@@ -6,13 +6,12 @@ import com.eduvod.eduvod.model.superadmin.*;
 import com.eduvod.eduvod.repository.superadmin.*;
 import com.eduvod.eduvod.service.superadmin.SchoolService;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -28,6 +27,9 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
     private final CurriculumTypeRepository curriculumTypeRepository;
     private final SchoolCategoryRepository schoolCategoryRepository;
     private final SchoolTypeRepository schoolTypeRepository;
+    private final RegionRepository regionRepository;
+    private final CountyRepository countyRepository;
+    private final SubCountyRepository subCountyRepository;
 
     @Override
     public SchoolResponse createSchool(SchoolRequest request) {
@@ -37,6 +39,12 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
                 .orElseThrow(() -> new RuntimeException("Invalid category"));
         var type = schoolTypeRepository.findByName(request.getType())
                 .orElseThrow(() -> new RuntimeException("Invalid school type"));
+        var region = regionRepository.findById(request.getRegionId())
+                .orElseThrow(() -> new RuntimeException("Invalid region ID"));
+        var county = countyRepository.findById(request.getCountyId())
+                .orElseThrow(() -> new RuntimeException("Invalid county ID"));
+        var subCounty = subCountyRepository.findById(request.getSubCountyId())
+                .orElseThrow(() -> new RuntimeException("Invalid sub-county ID"));
 
         var school = School.builder()
                 .moeRegNo(request.getMoeRegNo())
@@ -48,10 +56,9 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
                 .composition(request.getComposition())
                 .phone(request.getPhone())
                 .email(request.getEmail())
-                .region(request.getRegion())
-                .diocese(request.getDiocese())
-                .county(request.getCounty())
-                .subCounty(request.getSubCounty())
+                .region(region)
+                .county(county)
+                .subCounty(subCounty)
                 .location(request.getLocation())
                 .address(request.getAddress())
                 .website(request.getWebsite())
@@ -102,19 +109,22 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
                 String composition = getCellValue(row.getCell(6));
                 String phone = getCellValue(row.getCell(7));
                 String email = getCellValue(row.getCell(8));
-                String region = getCellValue(row.getCell(9));
-                String diocese = getCellValue(row.getCell(10));
-                String county = getCellValue(row.getCell(11));
-                String subCounty = getCellValue(row.getCell(12));
-                String location = getCellValue(row.getCell(13));
-                String address = getCellValue(row.getCell(14));
-                String website = getCellValue(row.getCell(15));
+                String regionName = getCellValue(row.getCell(9));
+                String countyName = getCellValue(row.getCell(10));
+                String subCountyName = getCellValue(row.getCell(11));
+                String location = getCellValue(row.getCell(12));
+                String address = getCellValue(row.getCell(13));
+                String website = getCellValue(row.getCell(14));
 
                 var curriculum = curriculumTypeRepository.findByName(curriculumName).orElse(null);
                 var category = schoolCategoryRepository.findByName(categoryName).orElse(null);
                 var type = schoolTypeRepository.findByName(typeName).orElse(null);
+                var region = regionRepository.findByName(regionName).orElse(null);
+                var county = countyRepository.findByName(countyName).orElse(null);
+                var subCounty = subCountyRepository.findByName(subCountyName).orElse(null);
 
-                if (curriculum == null || category == null || type == null) continue;
+                if (curriculum == null || category == null || type == null ||
+                        region == null || county == null || subCounty == null) continue;
 
                 School school = School.builder()
                         .moeRegNo(moeRegNo)
@@ -127,7 +137,6 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
                         .phone(phone)
                         .email(email)
                         .region(region)
-                        .diocese(diocese)
                         .county(county)
                         .subCounty(subCounty)
                         .location(location)
@@ -159,11 +168,10 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
 
             String[] headers = {
                     "MoeRegNo", "KpsaRegNo", "Name", "CurriculumType", "Category",
-                    "Type", "Composition", "Phone", "Email", "Region", "Diocese",
+                    "Type", "Composition", "Phone", "Email", "Region",
                     "County", "SubCounty", "Location", "Address", "Website"
             };
 
-            //Create header style
             CellStyle headerStyle = workbook.createCellStyle();
             Font headerFont = workbook.createFont();
             headerFont.setBold(true);
@@ -181,8 +189,6 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
                 sheet.autoSizeColumn(i);
             }
 
-
-            // Save the workbook to a temp file
             Path tempFile = Files.createTempFile("school_import_template", ".xlsx");
             try (OutputStream out = Files.newOutputStream(tempFile)) {
                 workbook.write(out);
@@ -194,5 +200,4 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
             throw new RuntimeException("Failed to generate import template", e);
         }
     }
-
 }

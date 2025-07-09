@@ -25,9 +25,10 @@ public class SchoolAdmin extends BaseEntity {
 
     private String password;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
     private School school;
+
 
     @Enumerated(EnumType.STRING)
     private UserStatus status;
@@ -53,8 +54,9 @@ public class SchoolAdmin extends BaseEntity {
         return deletedAt != null;
     }
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
 
 }

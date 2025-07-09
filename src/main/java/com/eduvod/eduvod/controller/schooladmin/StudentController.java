@@ -4,6 +4,7 @@ import com.eduvod.eduvod.dto.request.schooladmin.StudentRequest;
 import com.eduvod.eduvod.dto.response.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.schooladmin.StudentResponse;
 import com.eduvod.eduvod.service.schooladmin.StudentService;
+import com.eduvod.eduvod.repository.schooladmin.StreamRepository;
 import com.eduvod.eduvod.util.ExcelStudentTemplateUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,11 +13,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,6 +28,7 @@ import java.util.List;
 public class StudentController {
 
     private final StudentService studentService;
+    private final StreamRepository streamRepository;
 
     @Operation(summary = "Create a student under a specific stream")
     @ApiResponses(value = {
@@ -86,19 +86,25 @@ public class StudentController {
         return studentService.getStudentsByStreamId(streamId);
     }
 
-    @Operation(summary = "Download Excel student import template")
+    @Operation(summary = "Download Excel student import template for a stream")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Excel template downloaded")
     })
-    @GetMapping("/template/download")
-    public ResponseEntity<byte[]> downloadStudentTemplate() {
+    @GetMapping("/{streamId}/download")
+    public ResponseEntity<byte[]> downloadStudentTemplate(@PathVariable Long streamId) {
         try {
+            // Validate if stream exists
+            if (!streamRepository.existsById(streamId)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(null);
+            }
+
             ByteArrayInputStream in = ExcelStudentTemplateUtil.generateTemplate();
             byte[] excelContent = in.readAllBytes();
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentDisposition(ContentDisposition.builder("attachment")
-                    .filename("student_template.xlsx")
+                    .filename("student_template_stream_" + streamId + ".xlsx")
                     .build());
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
 
@@ -107,4 +113,24 @@ public class StudentController {
             throw new RuntimeException("Error generating Excel template", e);
         }
     }
+
+
+    @Operation(summary = "Import students from a specific stream via Excel")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Students imported successfully")
+    })
+    @PostMapping("/{streamId}/import")
+    public ResponseEntity<BaseApiResponse<String>> importStudents(
+            @PathVariable Long streamId,
+            @RequestParam("file") MultipartFile file
+    ) {
+        try {
+            BaseApiResponse<String> response = studentService.importStudents(streamId, file);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new BaseApiResponse<>(400, "Failed to import students", e.getMessage()));
+        }
+    }
+
 }
