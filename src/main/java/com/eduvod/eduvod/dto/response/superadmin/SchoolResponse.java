@@ -15,4 +15,11 @@ public class SchoolResponse {
     private String curriculumType;
     private String category;
     private String type;
+    private String composition;
+    private String location;
+    private String address;
+    private String website;
+    private String region;
+    private String county;
+    private String subCounty;
 }

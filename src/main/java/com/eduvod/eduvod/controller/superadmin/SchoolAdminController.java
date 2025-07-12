@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/superadmin/school-admins")
@@ -87,4 +88,12 @@ public class SchoolAdminController {
         schoolAdminService.softDelete(id);
         return ResponseEntity.ok(new BaseApiResponse<>(200, "School admin deleted successfully"));
     }
+
+    @PutMapping("/unassign-school/{schoolAdminId}")
+    @Operation(summary = "Unassign school from a school admin")
+    public ResponseEntity<BaseApiResponse<String>> unassignSchool(@PathVariable Long schoolAdminId) {
+        return ResponseEntity.ok(schoolAdminService.unassignSchool(schoolAdminId));
+    }
+
+
 }

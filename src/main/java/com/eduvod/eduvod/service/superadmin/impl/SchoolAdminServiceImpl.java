@@ -1,9 +1,13 @@
 package com.eduvod.eduvod.service.superadmin.impl;
 
 import com.eduvod.eduvod.dto.request.superadmin.*;
+import com.eduvod.eduvod.dto.response.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.superadmin.SchoolAdminResponse;
 import com.eduvod.eduvod.enums.UserStatus;
+import com.eduvod.eduvod.model.shared.RoleType;
+import com.eduvod.eduvod.model.shared.User;
 import com.eduvod.eduvod.model.superadmin.SchoolAdmin;
+import com.eduvod.eduvod.repository.shared.UserRepository;
 import com.eduvod.eduvod.repository.superadmin.*;
 import com.eduvod.eduvod.service.superadmin.SchoolAdminService;
 import lombok.RequiredArgsConstructor;
@@ -21,24 +25,44 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
     private final SchoolAdminRepository repository;
     private final SchoolRepository schoolRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SchoolAdminRepository schoolAdminRepository;
+    private final UserRepository userRepository;
+
 
     @Override
     public SchoolAdminResponse createSchoolAdmin(SchoolAdminRequest request) {
-        var admin = SchoolAdmin.builder()
+        // 1. Create and save the User
+        User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .status(UserStatus.ACTIVE)
+                .role(RoleType.SCHOOL_ADMIN)
                 .build();
 
+        user = userRepository.save(user);
+
+        // 2. Create SchoolAdmin and associate the User
+        var admin = SchoolAdmin.builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(user.getPassword())
+                .user(user)
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        // 3. Attach school if ID is given
         if (request.getSchoolId() != null) {
             admin.setSchool(schoolRepository.findById(request.getSchoolId())
                     .orElseThrow(() -> new RuntimeException("School not found")));
         }
 
         repository.save(admin);
+
         return mapToResponse(admin);
     }
+
+
 
 
     @Override
@@ -80,6 +104,18 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
         admin.setSchool(school);
         repository.save(admin);
     }
+
+    @Override
+    public BaseApiResponse<String> unassignSchool(Long schoolAdminId) {
+        SchoolAdmin admin = schoolAdminRepository.findById(schoolAdminId)
+                .orElseThrow(() -> new RuntimeException("School admin not found"));
+
+        admin.setSchool(null); // unassign the school
+        schoolAdminRepository.save(admin);
+
+        return new BaseApiResponse<>(200, "School unassigned successfully", null);
+    }
+
 
 
     private SchoolAdmin getById(Long id) {

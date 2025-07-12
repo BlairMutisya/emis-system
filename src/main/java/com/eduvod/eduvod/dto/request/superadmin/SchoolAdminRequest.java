@@ -11,5 +11,5 @@ public class SchoolAdminRequest {
     private String username;
     private String email;
     private String password;
-    private Long schoolId; // optional
+    private Long schoolId;
 }

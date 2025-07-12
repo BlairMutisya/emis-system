@@ -5,12 +5,14 @@ import com.eduvod.eduvod.dto.response.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.superadmin.SchoolResponse;
 import com.eduvod.eduvod.service.superadmin.SchoolService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -69,12 +71,12 @@ public class SuperAdminSchoolController {
                     @ApiResponse(responseCode = "200", description = "Template file downloaded")
             }
     )
-    @GetMapping("/import/template")
-    public ResponseEntity<Resource> downloadTemplate() {
-        Resource resource = schoolService.getImportTemplate();
+    @GetMapping("/template-download")
+    public ResponseEntity<Resource> exportSchools() {
+        Resource file = schoolService.exportSchools();
         return ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=school_import_template.xlsx")
-                .body(resource);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=schools_export.xlsx")
+                .body(file);
     }
 
     @Operation(
@@ -85,7 +87,7 @@ public class SuperAdminSchoolController {
                     @ApiResponse(responseCode = "400", description = "Invalid file format or parsing error")
             }
     )
-    @PostMapping("/import")
+    @PostMapping("/template-import")
     public ResponseEntity<BaseApiResponse<String>> importSchools(@RequestParam("file") MultipartFile file) {
         schoolService.importSchools(file);
         return ResponseEntity.ok(BaseApiResponse.<String>builder()
@@ -94,4 +96,38 @@ public class SuperAdminSchoolController {
                 .data("Import completed")
                 .build());
     }
+    @PutMapping("/{id}")
+    @Operation(
+            summary = "Update a school",
+            description = "Updates the details of a specific school by ID",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "School updated successfully",
+                            content = @Content(schema = @Schema(implementation = SchoolResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Invalid input or school not found",
+                            content = @Content
+                    )
+            }
+    )
+    public ResponseEntity<BaseApiResponse<SchoolResponse>> updateSchool(
+            @PathVariable Long id,
+            @org.springframework.web.bind.annotation.RequestBody SchoolRequest request
+    ) {
+        request.setId(id);
+        return ResponseEntity.ok(schoolService.updateSchool(request));
+    }
+    @GetMapping("/{id}")
+    @Operation(summary = "Get school by ID", description = "Fetch a single school's full details by its ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "School found successfully"),
+            @ApiResponse(responseCode = "404", description = "School not found")
+    })
+    public ResponseEntity<BaseApiResponse<SchoolResponse>> getSchoolById(@PathVariable Long id) {
+        return ResponseEntity.ok(schoolService.getSchoolById(id));
+    }
+
 }

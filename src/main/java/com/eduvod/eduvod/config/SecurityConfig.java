@@ -52,7 +52,9 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**",
                                 "/configuration/**",
-                                "/api/v1/auth/**"
+                                "/api/v1/auth/**",
+                                "/api/v1/superadmin/schools/template-download",
+                                "/api/v1/superadmin/users/{id}/status"
 //                                "/api/v1/superadmin/**"
                         ).permitAll()
 

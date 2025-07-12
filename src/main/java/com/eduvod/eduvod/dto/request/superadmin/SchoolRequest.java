@@ -4,12 +4,13 @@ import lombok.Data;
 
 @Data
 public class SchoolRequest {
+    private Long id;
     private String moeRegNo;
     private String kpsaRegNo;
     private String name;
-    private String curriculumType;
-    private String category;
-    private String type;
+    private Long curriculumId;
+    private Long categoryId;
+    private Long typeId;
     private String composition;
     private String phone;
     private String email;
