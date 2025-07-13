@@ -6,8 +6,11 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PasswordReset {
 
     @Id
@@ -16,9 +19,18 @@ public class PasswordReset {
 
     private String token;
 
+    @Column(nullable = false)
+    private String code;
+
     private LocalDateTime expiryDate;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Column(nullable = false)
+    private String username;
+
+    @Column(nullable = false)
+    private String email;
 }

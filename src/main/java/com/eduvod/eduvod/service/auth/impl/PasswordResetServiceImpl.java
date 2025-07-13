@@ -8,11 +8,13 @@ import com.eduvod.eduvod.repository.shared.PasswordResetRepository;
 import com.eduvod.eduvod.repository.shared.UserRepository;
 import com.eduvod.eduvod.service.auth.PasswordResetService;
 import com.eduvod.eduvod.service.email.EmailService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -25,31 +27,34 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public void requestReset(PasswordResetRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Delete old tokens
+        // Clear previous tokens
         tokenRepository.deleteByUser(user);
 
+        // Generate token and code
         String token = UUID.randomUUID().toString();
+        String code = String.format("%06d", new Random().nextInt(999999));
 
-        PasswordReset resetToken = PasswordReset.builder()
+        PasswordReset reset = PasswordReset.builder()
                 .token(token)
+                .code(code)
                 .user(user)
+                .username(user.getActualUsername())
+                .email(user.getEmail())
                 .expiryDate(LocalDateTime.now().plusHours(1))
                 .build();
 
-        tokenRepository.save(resetToken);
 
-        String resetLink = "https://eduvod.com/reset-password?token=" + token;
+        tokenRepository.save(reset);
 
-        String message = "<p>Hello,</p><p>Click below to reset your password:</p>" +
-                "<a href=\"" + resetLink + "\">Reset Password</a>" +
-                "<p>This link expires in 1 hour.</p>";
-
-        emailService.send(user.getEmail(), "Reset your EduVOD password", message);
+        // Send email with both link + code using Thymeleaf
+        emailService.sendPasswordResetEmail(user, token, code);
     }
+
 
     @Override
     public void updatePassword(PasswordUpdateRequest request) {

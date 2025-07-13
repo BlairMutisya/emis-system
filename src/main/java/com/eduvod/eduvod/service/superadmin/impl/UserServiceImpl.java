@@ -47,8 +47,8 @@ public class UserServiceImpl implements UserService {
 
         return UserResponse.builder()
                 .id(user.getId())
-                .username(user.getActualUsername()) // 👈 actual username from DB
-                .email(user.getEmail())             // 👈 email used for login
+                .username(user.getActualUsername())
+                .email(user.getEmail())
                 .role(user.getRole())
                 .status(user.getStatus())
                 .schoolName(

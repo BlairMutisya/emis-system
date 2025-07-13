@@ -19,10 +19,10 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "School Admin Dashboard", description = "Dashboard statistics for School Admin")
 public class SchoolAdminDashboardController {
     private final SchoolAdminDashboardService dashboardService;
-    @PostConstruct
-    public void init() {
-        System.out.println("SchoolAdminDashboardController loaded");
-    }
+//    @PostConstruct
+//    public void init() {
+//        System.out.println("SchoolAdminDashboardController loaded");
+//    }
 
 
     @Operation(
