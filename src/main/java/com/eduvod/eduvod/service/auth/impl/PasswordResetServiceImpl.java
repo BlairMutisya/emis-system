@@ -58,17 +58,32 @@ public class PasswordResetServiceImpl implements PasswordResetService {
 
     @Override
     public void updatePassword(PasswordUpdateRequest request) {
-        PasswordReset token = tokenRepository.findByToken(request.getToken())
-                .orElseThrow(() -> new RuntimeException("Invalid or expired token"));
+        PasswordReset reset;
 
-        if (token.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Token has expired");
+        // Check if token is provided (web)
+        if (request.getToken() != null && !request.getToken().isEmpty()) {
+            reset = tokenRepository.findByToken(request.getToken())
+                    .orElseThrow(() -> new RuntimeException("Invalid or expired token"));
+        }
+        // Otherwise use email+code for mobile
+        else if (request.getEmail() != null && request.getCode() != null) {
+            reset = tokenRepository.findByEmailAndCode(request.getEmail(), request.getCode())
+                    .orElseThrow(() -> new RuntimeException("Invalid reset code or email"));
+        } else {
+            throw new RuntimeException("Invalid request: missing token or code");
         }
 
-        User user = token.getUser();
+        // Expiry check
+        if (reset.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Reset link or code has expired");
+        }
+
+        User user = reset.getUser();
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setMustChangePassword(false); // clear the flag if set
 
         userRepository.save(user);
-        tokenRepository.delete(token); // invalidate token
+        tokenRepository.delete(reset); // invalidate
     }
+
 }

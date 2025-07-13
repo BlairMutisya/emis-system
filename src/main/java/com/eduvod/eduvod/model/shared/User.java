@@ -77,5 +77,9 @@ public class User implements UserDetails {
     public String getActualUsername() {
         return this.username;
     }
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean mustChangePassword = true;
+
 
 }

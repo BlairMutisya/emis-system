@@ -13,7 +13,7 @@ public interface SchoolService {
     List<SchoolResponse> getAllSchools();
 
     void importSchools(MultipartFile file);
-    Resource getImportTemplate();
+//    Resource getImportTemplate();
     Resource exportSchools();
     BaseApiResponse<SchoolResponse> updateSchool(SchoolRequest request);
     BaseApiResponse<SchoolResponse> getSchoolById(Long id);

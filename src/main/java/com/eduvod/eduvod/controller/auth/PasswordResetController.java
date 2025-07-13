@@ -7,41 +7,50 @@ import com.eduvod.eduvod.service.auth.PasswordResetService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@RequiredArgsConstructor
-@Tag(name = "Password Reset", description = "Endpoints for requesting and resetting passwords")
+@Tag(name = "Authentication", description = "Endpoints for password reset and authentication")
 public class PasswordResetController {
 
-    private final PasswordResetService resetService;
+    private final PasswordResetService passwordResetService;
+
+    public PasswordResetController(PasswordResetService passwordResetService) {
+        this.passwordResetService = passwordResetService;
+    }
+
 
     @Operation(
             summary = "Request password reset",
-            description = "Send a password reset link/token to the user's email"
+            description = "Sends a password reset email with reset link and code to the user's email address.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Reset instructions sent to email"),
+                    @ApiResponse(responseCode = "404", description = "User not found",
+                            content = @Content(schema = @Schema(implementation = BaseApiResponse.class)))
+            }
     )
-    @ApiResponse(responseCode = "200", description = "Reset link sent successfully")
-    @PostMapping("/request-reset")
-    public ResponseEntity<BaseApiResponse<String>> requestReset(@RequestBody PasswordResetRequest request) {
-        resetService.requestReset(request);
-        return ResponseEntity.ok(
-                new BaseApiResponse<>(200, "Reset link sent to your email", null)
-        );
+    @PostMapping("/forgot-password")
+    public ResponseEntity<BaseApiResponse<Void>> forgotPassword(@RequestBody PasswordResetRequest request) {
+        passwordResetService.requestReset(request);
+        return ResponseEntity.ok(new BaseApiResponse<>(200, "Reset instructions sent to email."));
     }
 
     @Operation(
-            summary = "Reset password using token",
-            description = "Submit token and new password to update user credentials"
+            summary = "Reset user password",
+            description = "Updates a user's password using either a reset token (web) or email + reset code (mobile).",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Password successfully updated"),
+                    @ApiResponse(responseCode = "400", description = "Invalid or expired token or code",
+                            content = @Content(schema = @Schema(implementation = BaseApiResponse.class)))
+            }
     )
-    @ApiResponse(responseCode = "200", description = "Password reset successfully")
     @PostMapping("/reset-password")
-    public ResponseEntity<BaseApiResponse<String>> updatePassword(@RequestBody PasswordUpdateRequest request) {
-        resetService.updatePassword(request);
-        return ResponseEntity.ok(
-                new BaseApiResponse<>(200, "Password updated successfully", null)
-        );
+    public ResponseEntity<BaseApiResponse<Void>> resetPassword(@RequestBody PasswordUpdateRequest request) {
+        passwordResetService.updatePassword(request);
+        return ResponseEntity.ok(new BaseApiResponse<>(200, "Password successfully updated."));
     }
 }

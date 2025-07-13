@@ -57,18 +57,23 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
                 .kpsaRegNo(request.getKpsaRegNo())
                 .name(request.getName())
                 .curriculum(curriculum)
+                .curriculumName(curriculum.getName())
                 .category(category)
+                .categoryName(category.getName())
                 .type(type)
+                .typeName(type.getName())
                 .composition(request.getComposition())
                 .phone(request.getPhone())
                 .email(request.getEmail())
                 .region(region)
+                .regionName(region.getName())
                 .county(county)
+                .countyName(county.getName())
                 .subCounty(subCounty)
+                .subCountyName(subCounty.getName())
                 .location(request.getLocation())
                 .address(request.getAddress())
                 .website(request.getWebsite())
-//                .logoUrl(request.getLogoUrl())
                 .build();
 
         school = schoolRepository.save(school);
@@ -91,7 +96,7 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
                 .county(county.getName())
                 .subCounty(subCounty.getName())
                 .build();
-}
+    }
 
 
     @Override
@@ -181,14 +186,20 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
                         .kpsaRegNo(kpsaRegNo)
                         .name(name)
                         .curriculum(curriculum)
+                        .curriculumName(curriculum.getName())
                         .category(category)
+                        .categoryName(category.getName())
                         .type(type)
+                        .typeName(type.getName())
                         .composition(composition)
                         .phone(phone)
                         .email(email)
                         .region(region)
+                        .regionName(region.getName())
                         .county(county)
+                        .countyName(county.getName())
                         .subCounty(subCounty)
+                        .subCountyName(subCounty.getName())
                         .location(location)
                         .address(address)
                         .website(website)
@@ -224,26 +235,30 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
         var subCounty = subCountyRepository.findById(request.getSubCountyId())
                 .orElseThrow(() -> new RuntimeException("Invalid sub-county ID"));
 
-        // Update school fields
         school.setMoeRegNo(request.getMoeRegNo());
         school.setKpsaRegNo(request.getKpsaRegNo());
         school.setName(request.getName());
         school.setCurriculum(curriculum);
+        school.setCurriculumName(curriculum.getName());
         school.setCategory(category);
+        school.setCategoryName(category.getName());
         school.setType(type);
+        school.setTypeName(type.getName());
         school.setComposition(request.getComposition());
         school.setPhone(request.getPhone());
         school.setEmail(request.getEmail());
         school.setRegion(region);
+        school.setRegionName(region.getName());
         school.setCounty(county);
+        school.setCountyName(county.getName());
         school.setSubCounty(subCounty);
+        school.setSubCountyName(subCounty.getName());
         school.setLocation(request.getLocation());
         school.setAddress(request.getAddress());
         school.setWebsite(request.getWebsite());
 
         schoolRepository.save(school);
 
-        // Full detailed response
         var response = SchoolResponse.builder()
                 .id(school.getId())
                 .moeRegNo(school.getMoeRegNo())
@@ -293,15 +308,15 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
                 row.createCell(0).setCellValue(school.getMoeRegNo());
                 row.createCell(1).setCellValue(school.getKpsaRegNo());
                 row.createCell(2).setCellValue(school.getName());
-                row.createCell(3).setCellValue(school.getCurriculum().getName());
-                row.createCell(4).setCellValue(school.getCategory().getName());
-                row.createCell(5).setCellValue(school.getType().getName());
+                row.createCell(3).setCellValue(school.getCurriculumName());
+                row.createCell(4).setCellValue(school.getCategoryName());
+                row.createCell(5).setCellValue(school.getTypeName());
                 row.createCell(6).setCellValue(school.getComposition());
                 row.createCell(7).setCellValue(school.getPhone());
                 row.createCell(8).setCellValue(school.getEmail());
-                row.createCell(9).setCellValue(school.getRegion().getName());
-                row.createCell(10).setCellValue(school.getCounty().getName());
-                row.createCell(11).setCellValue(school.getSubCounty().getName());
+                row.createCell(9).setCellValue(school.getRegionName());
+                row.createCell(10).setCellValue(school.getCountyName());
+                row.createCell(11).setCellValue(school.getSubCountyName());
                 row.createCell(12).setCellValue(school.getLocation());
                 row.createCell(13).setCellValue(school.getAddress());
                 row.createCell(14).setCellValue(school.getWebsite());
@@ -331,43 +346,43 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
         };
     }
 
-    @Override
-    public Resource getImportTemplate() {
-        try (Workbook workbook = new XSSFWorkbook()) {
-            Sheet sheet = workbook.createSheet("Schools");
-
-            String[] headers = {
-                    "MoeRegNo", "KpsaRegNo", "Name", "CurriculumType", "Category",
-                    "Type", "Composition", "Phone", "Email", "Region",
-                    "County", "SubCounty", "Location", "Address", "Website"
-            };
-
-            CellStyle headerStyle = workbook.createCellStyle();
-            Font headerFont = workbook.createFont();
-            headerFont.setBold(true);
-            headerFont.setColor(IndexedColors.WHITE.getIndex());
-            headerStyle.setFont(headerFont);
-            headerStyle.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
-            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-            headerStyle.setAlignment(HorizontalAlignment.CENTER);
-
-            Row headerRow = sheet.createRow(0);
-            for (int i = 0; i < headers.length; i++) {
-                Cell cell = headerRow.createCell(i);
-                cell.setCellValue(headers[i]);
-                cell.setCellStyle(headerStyle);
-                sheet.autoSizeColumn(i);
-            }
-
-            Path tempFile = Files.createTempFile("school_import_template", ".xlsx");
-            try (OutputStream out = Files.newOutputStream(tempFile)) {
-                workbook.write(out);
-            }
-
-            return new UrlResource(tempFile.toUri());
-
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to generate import template", e);
-        }
-    }
+//    @Override
+//    public Resource getImportTemplate() {
+//        try (Workbook workbook = new XSSFWorkbook()) {
+//            Sheet sheet = workbook.createSheet("Schools");
+//
+//            String[] headers = {
+//                    "MoeRegNo", "KpsaRegNo", "Name", "CurriculumType", "Category",
+//                    "Type", "Composition", "Phone", "Email", "Region",
+//                    "County", "SubCounty", "Location", "Address", "Website"
+//            };
+//
+//            CellStyle headerStyle = workbook.createCellStyle();
+//            Font headerFont = workbook.createFont();
+//            headerFont.setBold(true);
+//            headerFont.setColor(IndexedColors.WHITE.getIndex());
+//            headerStyle.setFont(headerFont);
+//            headerStyle.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
+//            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+//            headerStyle.setAlignment(HorizontalAlignment.CENTER);
+//
+//            Row headerRow = sheet.createRow(0);
+//            for (int i = 0; i < headers.length; i++) {
+//                Cell cell = headerRow.createCell(i);
+//                cell.setCellValue(headers[i]);
+//                cell.setCellStyle(headerStyle);
+//                sheet.autoSizeColumn(i);
+//            }
+//
+//            Path tempFile = Files.createTempFile("school_import_template", ".xlsx");
+//            try (OutputStream out = Files.newOutputStream(tempFile)) {
+//                workbook.write(out);
+//            }
+//
+//            return new UrlResource(tempFile.toUri());
+//
+//        } catch (IOException e) {
+//            throw new RuntimeException("Failed to generate import template", e);
+//        }
+//    }
 }

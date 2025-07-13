@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>School Unassignment Notification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f6f8fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #333333;
+        }
+
+        .info-box {
+            background-color: #f1f1f1;
+            font-weight: bold;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        .login-button {
+            background-color: #6c757d;
+            color: #ffffff;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 15px;
+        }
+
+        .footer {
+            font-size: 13px;
+            color: #888888;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+<table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+    <tr>
+        <td align="center">
+            <div class="container">
+                <h2>Hello <span th:text="${username}">User</span>,</h2>
+
+                <p>We’d like to inform you that you have been <strong>unassigned</strong> from the following school on EduVOD:</p>
+
+                <div class="info-box">
+                    <strong>School Name:</strong> <span th:text="${schoolName}">Example School</span>
+                </div>
+                <div class="info-box">
+                    <strong>MOE Registration No.:</strong> <span th:text="${moeRegNo}">MOE12345</span>
+                </div>
+                <div class="info-box">
+                    <strong>Location:</strong> <span th:text="${location}">SubCounty, County, Region</span>
+                </div>
+
+                <p>If this was unexpected or you have any concerns, please contact your system administrator.</p>
+
+                <p><a th:href="${loginLink}" class="login-button">Go to Dashboard</a></p>
+
+                <div class="footer">
+                    <p>EduVOD | Powered by Your Team</p>
+                </div>
+            </div>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

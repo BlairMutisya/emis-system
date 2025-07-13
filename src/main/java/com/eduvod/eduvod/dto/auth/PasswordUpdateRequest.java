@@ -7,7 +7,10 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Data
 public class PasswordUpdateRequest {
     private String token;
+    private String code;
+    private String email;
     private String newPassword;
 }

@@ -6,6 +6,7 @@ import com.eduvod.eduvod.dto.response.superadmin.SchoolAdminResponse;
 import com.eduvod.eduvod.enums.UserStatus;
 import com.eduvod.eduvod.model.shared.RoleType;
 import com.eduvod.eduvod.model.shared.User;
+import com.eduvod.eduvod.model.superadmin.School;
 import com.eduvod.eduvod.model.superadmin.SchoolAdmin;
 import com.eduvod.eduvod.repository.shared.UserRepository;
 import com.eduvod.eduvod.repository.superadmin.*;
@@ -13,9 +14,11 @@ import com.eduvod.eduvod.service.superadmin.SchoolAdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.eduvod.eduvod.service.email.EmailService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,20 +30,26 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
     private final PasswordEncoder passwordEncoder;
     private final SchoolAdminRepository schoolAdminRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
 
     @Override
     public SchoolAdminResponse createSchoolAdmin(SchoolAdminRequest request) {
         // 1. Create and save the User
+        String generatedPassword = generateRandomPassword();
+
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .password(passwordEncoder.encode(generatedPassword))
                 .status(UserStatus.ACTIVE)
                 .role(RoleType.SCHOOL_ADMIN)
+                .mustChangePassword(true)
                 .build();
 
         user = userRepository.save(user);
+        emailService.sendInvitationEmail(user, generatedPassword);
+
 
         // 2. Create SchoolAdmin and associate the User
         var admin = SchoolAdmin.builder()
@@ -63,6 +72,11 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
     }
 
 
+    private String generateRandomPassword() {
+        return UUID.randomUUID().toString()
+                .replace("-", "")
+                .substring(0, 10); // 10-character password
+    }
 
 
     @Override
@@ -103,18 +117,37 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
 
         admin.setSchool(school);
         repository.save(admin);
+
+        // Send assignment notification email
+        emailService.sendSchoolAssignmentEmail(admin.getUser(), school);
     }
+
 
     @Override
     public BaseApiResponse<String> unassignSchool(Long schoolAdminId) {
         SchoolAdmin admin = schoolAdminRepository.findById(schoolAdminId)
                 .orElseThrow(() -> new RuntimeException("School admin not found"));
 
-        admin.setSchool(null); // unassign the school
+        School school = admin.getSchool(); // Capture school before unassignment
+
+        if (school != null) {
+            String location = String.format(
+                    "%s, %s, %s",
+                    school.getSubCounty() != null ? school.getSubCounty().getName() : "N/A",
+                    school.getCounty() != null ? school.getCounty().getName() : "N/A",
+                    school.getRegion() != null ? school.getRegion().getName() : "N/A"
+            );
+
+            // Send unassignment email
+            emailService.sendSchoolUnassignmentEmail(admin.getUser(), school.getName(), school.getMoeRegNo(), location);
+        }
+
+        admin.setSchool(null);
         schoolAdminRepository.save(admin);
 
         return new BaseApiResponse<>(200, "School unassigned successfully", null);
     }
+
 
 
 

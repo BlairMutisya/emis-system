@@ -22,15 +22,15 @@ public class PasswordReset {
     @Column(nullable = false)
     private String code;
 
+    @Column(nullable = false)
+    private String email;
+
+    @Column(nullable = false)
+    private String username;
+
     private LocalDateTime expiryDate;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-
-    @Column(nullable = false)
-    private String username;
-
-    @Column(nullable = false)
-    private String email;
 }

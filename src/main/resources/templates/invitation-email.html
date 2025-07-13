@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to EduVOD</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f6f8fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #333333;
+        }
+
+        .login-button {
+            background-color: #28a745;
+            color: #ffffff;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 15px;
+        }
+
+        .info-box {
+            background-color: #f1f1f1;
+            font-weight: bold;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        .footer {
+            font-size: 13px;
+            color: #888888;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+<table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+    <tr>
+        <td align="center">
+            <div class="container">
+                <h2>Hello <span th:text="${username}">User</span>,</h2>
+
+                <p>You've been added to <strong>EduVOD</strong> as a
+                    <strong th:text="${role}">Admin</strong>.</p>
+
+                <p>Use the credentials below to log in:</p>
+
+                <div class="info-box">
+                    Username: <span th:text="${username}">username</span>
+                </div>
+                <div class="info-box">
+                    Temporary Password: <span th:text="${temporaryPassword}">password</span>
+                </div>
+
+                <p><a th:href="${loginLink}" class="login-button">Click here to log in (Web)</a></p>
+
+                <p><strong>OR:</strong> Open the <strong>EduVOD mobile app</strong> and log in using the same credentials above.</p>
+
+                <p><strong>Important:</strong> You'll be prompted to change your password after your first login.</p>
+
+                <div class="footer">
+                    <p>If you did not expect this invitation, please ignore this email or contact support.</p>
+                    <p>EduVOD | Powered by Your Team</p>
+                </div>
+            </div>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
