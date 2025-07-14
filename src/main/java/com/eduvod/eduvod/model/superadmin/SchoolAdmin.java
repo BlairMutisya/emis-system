@@ -18,12 +18,12 @@ public class SchoolAdmin extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String username;
-
-    private String email;
-
-    private String password;
+//
+//    private String username;
+//
+//    private String email;
+//
+//    private String password;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
@@ -54,9 +54,11 @@ public class SchoolAdmin extends BaseEntity {
         return deletedAt != null;
     }
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+
 
 
 }

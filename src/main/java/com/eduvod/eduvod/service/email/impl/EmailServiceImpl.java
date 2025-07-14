@@ -57,6 +57,10 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendInvitationEmail(User user, String temporaryPassword) {
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
+            throw new IllegalArgumentException("Cannot send invitation: User email is missing");
+        }
+
         Context context = new Context();
         context.setVariable("username", user.getActualUsername());
         context.setVariable("temporaryPassword", temporaryPassword);
@@ -66,6 +70,7 @@ public class EmailServiceImpl implements EmailService {
         String html = templateEngine.process("invitation-email.html", context);
         send(user.getEmail(), "Welcome to EduVOD!", html);
     }
+
 
     @Override
     public void sendSchoolAssignmentEmail(User user, School school) {

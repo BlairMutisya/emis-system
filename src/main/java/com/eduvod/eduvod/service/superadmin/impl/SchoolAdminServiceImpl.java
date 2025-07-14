@@ -2,6 +2,7 @@ package com.eduvod.eduvod.service.superadmin.impl;
 
 import com.eduvod.eduvod.dto.request.superadmin.*;
 import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.superadmin.AssignSchoolResponse;
 import com.eduvod.eduvod.dto.response.superadmin.SchoolAdminResponse;
 import com.eduvod.eduvod.enums.UserStatus;
 import com.eduvod.eduvod.model.shared.RoleType;
@@ -11,17 +12,22 @@ import com.eduvod.eduvod.model.superadmin.SchoolAdmin;
 import com.eduvod.eduvod.repository.shared.UserRepository;
 import com.eduvod.eduvod.repository.superadmin.*;
 import com.eduvod.eduvod.service.superadmin.SchoolAdminService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.eduvod.eduvod.service.email.EmailService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class SchoolAdminServiceImpl implements SchoolAdminService {
 
@@ -33,43 +39,55 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
     private final EmailService emailService;
 
 
-    @Override
     public SchoolAdminResponse createSchoolAdmin(SchoolAdminRequest request) {
-        // 1. Create and save the User
-        String generatedPassword = generateRandomPassword();
+        Optional<User> existingUserOpt = userRepository.findByEmail(request.getEmail());
+        User user;
+        boolean isNewUser = false;
 
-        User user = User.builder()
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(generatedPassword))
-                .status(UserStatus.ACTIVE)
-                .role(RoleType.SCHOOL_ADMIN)
-                .mustChangePassword(true)
-                .build();
+        if (existingUserOpt.isPresent()) {
+            user = existingUserOpt.get();
+        } else {
+            isNewUser = true;
+            String generatedPassword = generateRandomPassword();
 
-        user = userRepository.save(user);
-        emailService.sendInvitationEmail(user, generatedPassword);
+            user = User.builder()
+                    .username(request.getUsername())
+                    .email(request.getEmail())
+                    .password(passwordEncoder.encode(generatedPassword))
+                    .status(UserStatus.ACTIVE)
+                    .role(RoleType.SCHOOL_ADMIN)
+                    .mustChangePassword(true)
+                    .build();
 
+            user = userRepository.save(user);
 
-        // 2. Create SchoolAdmin and associate the User
-        var admin = SchoolAdmin.builder()
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .password(user.getPassword())
-                .user(user)
-                .status(UserStatus.ACTIVE)
-                .build();
+            // Send invitation only for new users
+            emailService.sendInvitationEmail(user, generatedPassword);
+        }
 
-        // 3. Attach school if ID is given
+        Optional<SchoolAdmin> existingAdminOpt = repository.findByUserId(user.getId());
+        SchoolAdmin admin;
+
+        if (existingAdminOpt.isPresent()) {
+            admin = existingAdminOpt.get();
+        } else {
+            admin = SchoolAdmin.builder()
+                    .user(user)
+                    .status(UserStatus.ACTIVE)
+                    .build();
+        }
+
         if (request.getSchoolId() != null) {
             admin.setSchool(schoolRepository.findById(request.getSchoolId())
                     .orElseThrow(() -> new RuntimeException("School not found")));
         }
 
-        repository.save(admin);
+        // Ensure admin is saved
+        admin = repository.save(admin);
 
         return mapToResponse(admin);
     }
+
 
 
     private String generateRandomPassword() {
@@ -105,22 +123,53 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
 
     @Override
     public void updatePassword(Long id, UpdateSchoolAdminPasswordRequest request) {
-        var admin = getById(request.getAdminId());
-        admin.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        repository.save(admin);
-    }
-    @Override
-    public void assignSchool(AssignSchoolRequest request) {
         var admin = getById(request.getSchoolAdminId());
-        var school = schoolRepository.findById(request.getSchoolId())
+        admin.getUser().setPassword(passwordEncoder.encode(request.getNewPassword()));
+        repository.save(admin); // This cascades and saves user as well
+    }
+
+
+    @Override
+    public BaseApiResponse<AssignSchoolResponse> assignSchool(AssignSchoolRequest request) {
+        // Fetch SchoolAdmin with associated User
+        SchoolAdmin admin = repository.findByIdWithUser(request.getSchoolAdminId())
+                .orElseThrow(() -> new RuntimeException("SchoolAdmin not found"));
+
+        // Fetch School
+        School school = schoolRepository.findById(request.getSchoolId())
                 .orElseThrow(() -> new RuntimeException("School not found"));
 
+        // Avoid re-assigning the same school
+        if (admin.getSchool() != null && admin.getSchool().getId().equals(school.getId())) {
+            throw new IllegalStateException("SchoolAdmin is already assigned to this school");
+        }
+
+        // Assign the school
         admin.setSchool(school);
         repository.save(admin);
 
-        // Send assignment notification email
-        emailService.sendSchoolAssignmentEmail(admin.getUser(), school);
+        // Notify the admin if email is available and not blank
+        User user = admin.getUser();
+        if (user != null && user.getEmail() != null && !user.getEmail().isBlank()) {
+            emailService.sendSchoolAssignmentEmail(user, school);
+        }
+
+        // Build response
+        AssignSchoolResponse response = AssignSchoolResponse.builder()
+                .schoolAdminId(admin.getId())
+                .username(user != null ? user.getUsername() : null)
+                .email(user != null ? user.getEmail() : null)
+                .schoolId(school.getId())
+                .schoolName(school.getName())
+                .message("School assigned successfully")
+                .build();
+
+        return new BaseApiResponse<>(200, "School assignment successful", response);
     }
+
+
+
+
 
 
     @Override
@@ -137,6 +186,7 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
                     school.getCounty() != null ? school.getCounty().getName() : "N/A",
                     school.getRegion() != null ? school.getRegion().getName() : "N/A"
             );
+
 
             // Send unassignment email
             emailService.sendSchoolUnassignmentEmail(admin.getUser(), school.getName(), school.getMoeRegNo(), location);
@@ -158,10 +208,12 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
     private SchoolAdminResponse mapToResponse(SchoolAdmin admin) {
         return SchoolAdminResponse.builder()
                 .id(admin.getId())
-                .username(admin.getUsername())
-                .email(admin.getEmail())
+                .username(admin.getUser().getUsername())
+                .email(admin.getUser().getEmail())
                 .schoolName(admin.getSchool() != null ? admin.getSchool().getName() : null)
                 .status(admin.getStatus())
                 .build();
     }
+
+
 }

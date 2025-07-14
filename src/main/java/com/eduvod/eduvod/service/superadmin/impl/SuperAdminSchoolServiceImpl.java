@@ -13,6 +13,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -20,6 +22,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SuperAdminSchoolServiceImpl implements SchoolService {
@@ -32,25 +35,80 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
     private final CountyRepository countyRepository;
     private final SubCountyRepository subCountyRepository;
 
+    private CurriculumType resolveCurriculum(SchoolRequest request) {
+        if (request.getCurriculumId() != null) {
+            return curriculumTypeRepository.findById(request.getCurriculumId())
+                    .orElseThrow(() -> new RuntimeException("Invalid curriculum ID"));
+        } else if (request.getCurriculumName() != null) {
+            return curriculumTypeRepository.findByName(request.getCurriculumName())
+                    .orElseThrow(() -> new RuntimeException("Invalid curriculum name"));
+        }
+        throw new RuntimeException("Curriculum is required");
+    }
+
+    private SchoolCategory resolveCategory(SchoolRequest request) {
+        if (request.getCategoryId() != null) {
+            return schoolCategoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Invalid category ID"));
+        } else if (request.getCategoryName() != null) {
+            return schoolCategoryRepository.findByName(request.getCategoryName())
+                    .orElseThrow(() -> new RuntimeException("Invalid category name"));
+        }
+        throw new RuntimeException("Category is required");
+    }
+
+    private SchoolType resolveType(SchoolRequest request) {
+        if (request.getTypeId() != null) {
+            return schoolTypeRepository.findById(request.getTypeId())
+                    .orElseThrow(() -> new RuntimeException("Invalid type ID"));
+        } else if (request.getTypeName() != null) {
+            return schoolTypeRepository.findByName(request.getTypeName())
+                    .orElseThrow(() -> new RuntimeException("Invalid type name"));
+        }
+        throw new RuntimeException("Type is required");
+    }
+
+    private Region resolveRegion(SchoolRequest request) {
+        if (request.getRegionId() != null) {
+            return regionRepository.findById(request.getRegionId())
+                    .orElseThrow(() -> new RuntimeException("Invalid region ID"));
+        } else if (request.getRegionName() != null) {
+            return regionRepository.findByName(request.getRegionName())
+                    .orElseThrow(() -> new RuntimeException("Invalid region name"));
+        }
+        throw new RuntimeException("Region is required");
+    }
+
+    private County resolveCounty(SchoolRequest request) {
+        if (request.getCountyId() != null) {
+            return countyRepository.findById(request.getCountyId())
+                    .orElseThrow(() -> new RuntimeException("Invalid county ID"));
+        } else if (request.getCountyName() != null) {
+            return countyRepository.findByName(request.getCountyName())
+                    .orElseThrow(() -> new RuntimeException("Invalid county name"));
+        }
+        throw new RuntimeException("County is required");
+    }
+
+    private SubCounty resolveSubCounty(SchoolRequest request) {
+        if (request.getSubCountyId() != null) {
+            return subCountyRepository.findById(request.getSubCountyId())
+                    .orElseThrow(() -> new RuntimeException("Invalid sub-county ID"));
+        } else if (request.getSubCountyName() != null) {
+            return subCountyRepository.findByName(request.getSubCountyName())
+                    .orElseThrow(() -> new RuntimeException("Invalid sub-county name"));
+        }
+        throw new RuntimeException("Sub-county is required");
+    }
+
     @Override
     public SchoolResponse createSchool(SchoolRequest request) {
-        var curriculum = curriculumTypeRepository.findById(request.getCurriculumId())
-                .orElseThrow(() -> new RuntimeException("Invalid curriculum ID"));
-
-        var category = schoolCategoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Invalid category ID"));
-
-        var type = schoolTypeRepository.findById(request.getTypeId())
-                .orElseThrow(() -> new RuntimeException("Invalid school type ID"));
-
-        var region = regionRepository.findById(request.getRegionId())
-                .orElseThrow(() -> new RuntimeException("Invalid region ID"));
-
-        var county = countyRepository.findById(request.getCountyId())
-                .orElseThrow(() -> new RuntimeException("Invalid county ID"));
-
-        var subCounty = subCountyRepository.findById(request.getSubCountyId())
-                .orElseThrow(() -> new RuntimeException("Invalid sub-county ID"));
+        var curriculum = resolveCurriculum(request);
+        var category = resolveCategory(request);
+        var type = resolveType(request);
+        var region = resolveRegion(request);
+        var county = resolveCounty(request);
+        var subCounty = resolveSubCounty(request);
 
         var school = School.builder()
                 .moeRegNo(request.getMoeRegNo())
@@ -78,74 +136,26 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
 
         school = schoolRepository.save(school);
 
-        return SchoolResponse.builder()
-                .id(school.getId())
-                .moeRegNo(school.getMoeRegNo())
-                .kpsaRegNo(school.getKpsaRegNo())
-                .name(school.getName())
-                .email(school.getEmail())
-                .phone(school.getPhone())
-                .curriculumType(curriculum.getName())
-                .category(category.getName())
-                .type(type.getName())
-                .composition(school.getComposition())
-                .location(school.getLocation())
-                .address(school.getAddress())
-                .website(school.getWebsite())
-                .region(region.getName())
-                .county(county.getName())
-                .subCounty(subCounty.getName())
-                .build();
-    }
+        return toSchoolResponse(school);
 
+    }
 
     @Override
     public List<SchoolResponse> getAllSchools() {
-        return schoolRepository.findAll().stream().map(school -> SchoolResponse.builder()
-                .id(school.getId())
-                .moeRegNo(school.getMoeRegNo())
-                .kpsaRegNo(school.getKpsaRegNo())
-                .name(school.getName())
-                .email(school.getEmail())
-                .phone(school.getPhone())
-                .curriculumType(school.getCurriculum().getName())
-                .category(school.getCategory().getName())
-                .type(school.getType().getName())
-                .composition(school.getComposition())
-                .location(school.getLocation())
-                .address(school.getAddress())
-                .website(school.getWebsite())
-                .region(school.getRegion().getName())
-                .county(school.getCounty().getName())
-                .subCounty(school.getSubCounty().getName())
-                .build()).collect(Collectors.toList());
+        return schoolRepository.findAll()
+                .stream()
+                .map(this::toSchoolResponse)
+                .collect(Collectors.toList());
     }
+
     @Override
     public BaseApiResponse<SchoolResponse> getSchoolById(Long id) {
         School school = schoolRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("School not found with ID: " + id));
 
-        SchoolResponse response = SchoolResponse.builder()
-                .id(school.getId())
-                .moeRegNo(school.getMoeRegNo())
-                .kpsaRegNo(school.getKpsaRegNo())
-                .name(school.getName())
-                .email(school.getEmail())
-                .phone(school.getPhone())
-                .curriculumType(school.getCurriculum().getName())
-                .category(school.getCategory().getName())
-                .type(school.getType().getName())
-                .composition(school.getComposition())
-                .region(school.getRegion().getName())
-                .county(school.getCounty().getName())
-                .subCounty(school.getSubCounty().getName())
-                .location(school.getLocation())
-                .address(school.getAddress())
-                .website(school.getWebsite())
-                .build();
-
-        return new BaseApiResponse<>(200, "School fetched successfully", response);
+        return BaseApiResponse.success("School fetched successfully", toSchoolResponse(school));
     }
+
 
     @Override
     public void importSchools(MultipartFile file) {
@@ -178,8 +188,11 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
                 var county = countyRepository.findByName(countyName).orElse(null);
                 var subCounty = subCountyRepository.findByName(subCountyName).orElse(null);
 
-                if (curriculum == null || category == null || type == null ||
-                        region == null || county == null || subCounty == null) continue;
+                if (curriculum == null || category == null || type == null || region == null || county == null || subCounty == null) {
+                    log.warn("Skipped row {} due to invalid reference data", row.getRowNum());
+                    continue;
+                }
+
 
                 School school = School.builder()
                         .moeRegNo(moeRegNo)
@@ -217,23 +230,13 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
         var school = schoolRepository.findById(request.getId())
                 .orElseThrow(() -> new RuntimeException("School not found"));
 
-        var curriculum = curriculumTypeRepository.findById(request.getCurriculumId())
-                .orElseThrow(() -> new RuntimeException("Invalid curriculum ID"));
+        var curriculum = resolveCurriculum(request);
+        var category = resolveCategory(request);
+        var type = resolveType(request);
+        var region = resolveRegion(request);
+        var county = resolveCounty(request);
+        var subCounty = resolveSubCounty(request);
 
-        var category = schoolCategoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Invalid category ID"));
-
-        var type = schoolTypeRepository.findById(request.getTypeId())
-                .orElseThrow(() -> new RuntimeException("Invalid school type ID"));
-
-        var region = regionRepository.findById(request.getRegionId())
-                .orElseThrow(() -> new RuntimeException("Invalid region ID"));
-
-        var county = countyRepository.findById(request.getCountyId())
-                .orElseThrow(() -> new RuntimeException("Invalid county ID"));
-
-        var subCounty = subCountyRepository.findById(request.getSubCountyId())
-                .orElseThrow(() -> new RuntimeException("Invalid sub-county ID"));
 
         school.setMoeRegNo(request.getMoeRegNo());
         school.setKpsaRegNo(request.getKpsaRegNo());
@@ -259,26 +262,8 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
 
         schoolRepository.save(school);
 
-        var response = SchoolResponse.builder()
-                .id(school.getId())
-                .moeRegNo(school.getMoeRegNo())
-                .kpsaRegNo(school.getKpsaRegNo())
-                .name(school.getName())
-                .email(school.getEmail())
-                .phone(school.getPhone())
-                .curriculumType(curriculum.getName())
-                .category(category.getName())
-                .type(type.getName())
-                .composition(school.getComposition())
-                .region(region.getName())
-                .county(county.getName())
-                .subCounty(subCounty.getName())
-                .location(school.getLocation())
-                .address(school.getAddress())
-                .website(school.getWebsite())
-                .build();
+        return BaseApiResponse.success("School updated successfully", toSchoolResponse(school));
 
-        return BaseApiResponse.success("School updated successfully", response);
     }
 
     @Override
@@ -345,6 +330,27 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
             default -> "";
         };
     }
+    private SchoolResponse toSchoolResponse(School school) {
+        return SchoolResponse.builder()
+                .id(school.getId())
+                .moeRegNo(school.getMoeRegNo())
+                .kpsaRegNo(school.getKpsaRegNo())
+                .name(school.getName())
+                .email(school.getEmail())
+                .phone(school.getPhone())
+                .curriculumType(school.getCurriculum().getName())
+                .category(school.getCategory().getName())
+                .type(school.getType().getName())
+                .composition(school.getComposition())
+                .region(school.getRegion().getName())
+                .county(school.getCounty().getName())
+                .subCounty(school.getSubCounty().getName())
+                .location(school.getLocation())
+                .address(school.getAddress())
+                .website(school.getWebsite())
+                .build();
+    }
+
 
 //    @Override
 //    public Resource getImportTemplate() {

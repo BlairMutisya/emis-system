@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class UpdateSchoolAdminPasswordRequest {
-    private Long adminId;
+    private Long schoolAdminId;
     private String newPassword;
 }
+
