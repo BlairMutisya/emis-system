@@ -1,7 +1,7 @@
 package com.eduvod.eduvod.service.superadmin.impl;
 
 import com.eduvod.eduvod.dto.request.superadmin.CountyRequest;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.superadmin.CountyResponse;
 import com.eduvod.eduvod.dto.response.superadmin.SubCountyResponse;
 import com.eduvod.eduvod.model.superadmin.County;

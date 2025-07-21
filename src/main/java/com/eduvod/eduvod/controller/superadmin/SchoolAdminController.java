@@ -6,7 +6,7 @@ import com.eduvod.eduvod.dto.request.superadmin.UpdateSchoolAdminPasswordRequest
 import com.eduvod.eduvod.dto.response.superadmin.SchoolAdminResponse;
 import com.eduvod.eduvod.enums.UserStatus;
 import com.eduvod.eduvod.service.superadmin.SchoolAdminService;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/superadmin/school-admins")

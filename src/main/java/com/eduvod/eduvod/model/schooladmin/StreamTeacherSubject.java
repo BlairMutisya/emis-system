@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "stream_teacher_subjects")
+@Table(name = "teacher_subjects")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

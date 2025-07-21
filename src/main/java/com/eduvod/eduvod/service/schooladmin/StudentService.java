@@ -1,7 +1,7 @@
 package com.eduvod.eduvod.service.schooladmin;
 
 import com.eduvod.eduvod.dto.request.schooladmin.StudentRequest;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.schooladmin.StudentResponse;
 import org.springframework.web.multipart.MultipartFile;
 

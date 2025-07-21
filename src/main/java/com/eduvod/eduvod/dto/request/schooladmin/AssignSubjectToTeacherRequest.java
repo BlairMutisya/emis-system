@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class AssignSubjectToStreamTeacherRequest {
+public class AssignSubjectToTeacherRequest {
     private Long streamTeacherId;
     private List<Long> subjectIds;
 }

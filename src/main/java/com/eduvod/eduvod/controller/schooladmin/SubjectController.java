@@ -1,7 +1,7 @@
 package com.eduvod.eduvod.controller.schooladmin;
 
 import com.eduvod.eduvod.dto.request.schooladmin.SubjectRequest;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.schooladmin.SubjectResponse;
 import com.eduvod.eduvod.service.schooladmin.SubjectService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/schooladmin/subjects")
 @RequiredArgsConstructor
-@Tag(name = "School Admin - Subject Management", description = "Endpoints for managing school subjects")
+@Tag(name = "Subject Management", description = "Endpoints for managing school subjects")
 public class SubjectController {
 
     private final SubjectService subjectService;

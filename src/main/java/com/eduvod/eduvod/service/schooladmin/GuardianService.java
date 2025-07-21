@@ -2,7 +2,7 @@ package com.eduvod.eduvod.service.schooladmin;
 
 import com.eduvod.eduvod.dto.request.schooladmin.GuardianRequest;
 import com.eduvod.eduvod.dto.response.schooladmin.GuardianResponse;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 
 import java.util.List;
 

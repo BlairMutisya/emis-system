@@ -1,6 +1,6 @@
 package com.eduvod.eduvod.controller.superadmin;
 
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.superadmin.UserResponse;
 import com.eduvod.eduvod.enums.UserStatus;
 import com.eduvod.eduvod.service.superadmin.UserService;

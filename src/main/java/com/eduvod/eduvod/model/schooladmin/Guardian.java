@@ -38,6 +38,4 @@ public class Guardian {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
     private School school;
-
-
 }

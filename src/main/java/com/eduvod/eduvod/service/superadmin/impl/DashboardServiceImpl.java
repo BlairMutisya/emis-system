@@ -1,6 +1,6 @@
 package com.eduvod.eduvod.service.superadmin.impl;
 
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.superadmin.DashboardResponse;
 import com.eduvod.eduvod.enums.Gender;
 import com.eduvod.eduvod.repository.schooladmin.*;
@@ -17,7 +17,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     private final StudentRepository studentRepository;
     private final GuardianRepository guardianRepository;
-    private final TeacherRepository teacherRepository;
+    private final StaffRepository staffRepository;
     private final SchoolClassRepository schoolClassRepository;
     private final StreamRepository streamRepository;
 
@@ -41,9 +41,9 @@ public class DashboardServiceImpl implements DashboardService {
             differentlyAbledByGender.put(gender.name(), count);
         }
 
-        // Teacher counts by gender
+        // Teacher counts by gender (from staff with isTeacher = true)
         for (Gender gender : Gender.values()) {
-            long count = teacherRepository.countByGender(gender);
+            long count = staffRepository.countByGenderAndIsTeacherTrue(gender);
             teacherCountByGender.put(gender.name(), count);
         }
 

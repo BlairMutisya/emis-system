@@ -1,8 +1,8 @@
 package com.eduvod.eduvod.service.schooladmin.impl;
 
-import com.eduvod.eduvod.dto.request.schooladmin.AssignSubjectToStreamTeacherRequest;
+import com.eduvod.eduvod.dto.request.schooladmin.AssignSubjectToTeacherRequest;
 import com.eduvod.eduvod.dto.request.schooladmin.AssignTeacherToStreamRequest;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.schooladmin.StreamTeacherResponse;
 import com.eduvod.eduvod.model.schooladmin.*;
 import com.eduvod.eduvod.repository.schooladmin.*;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class StreamTeacherServiceImpl implements StreamTeacherService {
 
     private final StreamRepository streamRepository;
-    private final TeacherRepository teacherRepository;
+    private final StaffRepository staffRepository;
     private final StreamTeacherRepository streamTeacherRepository;
     private final SubjectRepository subjectRepository;
     private final StreamTeacherSubjectRepository streamTeacherSubjectRepository;
@@ -27,12 +27,15 @@ public class StreamTeacherServiceImpl implements StreamTeacherService {
     public BaseApiResponse<StreamTeacherResponse> assignTeacherToStream(AssignTeacherToStreamRequest request) {
         Stream stream = streamRepository.findById(request.getStreamId())
                 .orElseThrow(() -> new RuntimeException("Stream not found"));
-        Teacher teacher = teacherRepository.findById(request.getTeacherId())
-                .orElseThrow(() -> new RuntimeException("Teacher not found"));
+
+        Staff staff = staffRepository.findById(request.getStaffId())
+                .filter(Staff::isTeacher)
+                .orElseThrow(() -> new RuntimeException("Teacher (staff marked as teacher) not found"));
+
 
         StreamTeacher streamTeacher = StreamTeacher.builder()
                 .stream(stream)
-                .teacher(teacher)
+                .staff(staff)
                 .deleted(false)
                 .build();
 
@@ -42,7 +45,7 @@ public class StreamTeacherServiceImpl implements StreamTeacherService {
     }
 
     @Override
-    public BaseApiResponse<String> assignSubjectsToStreamTeacher(AssignSubjectToStreamTeacherRequest request) {
+    public BaseApiResponse<String> assignSubjectsToStreamTeacher(AssignSubjectToTeacherRequest request) {
         StreamTeacher streamTeacher = streamTeacherRepository.findById(request.getStreamTeacherId())
                 .orElseThrow(() -> new RuntimeException("StreamTeacher not found"));
 
@@ -76,8 +79,8 @@ public class StreamTeacherServiceImpl implements StreamTeacherService {
     private StreamTeacherResponse mapToResponse(StreamTeacher entity) {
         return StreamTeacherResponse.builder()
                 .id(entity.getId())
-                .teacherId(entity.getTeacher().getId())
-                .teacherName(entity.getTeacher().getFirstName() + " " + entity.getTeacher().getLastName())
+                .staffId(entity.getStaff().getId())
+                .staffName(entity.getStaff().getFirstName() + " " + entity.getStaff().getLastName())
                 .streamId(entity.getStream().getId())
                 .streamName(entity.getStream().getName())
                 .build();

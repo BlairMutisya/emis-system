@@ -7,7 +7,7 @@ import com.eduvod.eduvod.model.schooladmin.Stream;
 import com.eduvod.eduvod.repository.schooladmin.SchoolClassRepository;
 import com.eduvod.eduvod.repository.schooladmin.StreamRepository;
 import com.eduvod.eduvod.service.schooladmin.StreamService;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

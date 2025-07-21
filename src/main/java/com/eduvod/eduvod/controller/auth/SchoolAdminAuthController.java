@@ -3,7 +3,7 @@ package com.eduvod.eduvod.controller.auth;
 import com.eduvod.eduvod.dto.auth.AuthenticationRequest;
 import com.eduvod.eduvod.dto.auth.AuthenticationResponse;
 import com.eduvod.eduvod.dto.auth.RegisterRequest;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.security.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

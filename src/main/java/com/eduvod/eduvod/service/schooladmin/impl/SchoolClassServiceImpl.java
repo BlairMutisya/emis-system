@@ -1,7 +1,7 @@
 package com.eduvod.eduvod.service.schooladmin.impl;
 
 import com.eduvod.eduvod.dto.request.schooladmin.CreateClassRequest;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.schooladmin.ClassResponse;
 import com.eduvod.eduvod.model.schooladmin.SchoolClass;
 import com.eduvod.eduvod.repository.schooladmin.SchoolClassRepository;

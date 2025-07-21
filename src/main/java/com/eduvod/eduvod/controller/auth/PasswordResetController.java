@@ -2,7 +2,7 @@ package com.eduvod.eduvod.controller.auth;
 
 import com.eduvod.eduvod.dto.auth.PasswordResetRequest;
 import com.eduvod.eduvod.dto.auth.PasswordUpdateRequest;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.service.auth.PasswordResetService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

@@ -1,7 +1,7 @@
 package com.eduvod.eduvod.controller.schooladmin;
 
 import com.eduvod.eduvod.dto.request.schooladmin.GuardianRequest;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.schooladmin.GuardianResponse;
 import com.eduvod.eduvod.service.schooladmin.GuardianService;
 import io.swagger.v3.oas.annotations.Operation;

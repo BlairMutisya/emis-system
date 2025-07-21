@@ -1,8 +1,8 @@
 package com.eduvod.eduvod.controller.schooladmin;
 
-import com.eduvod.eduvod.dto.request.schooladmin.AssignSubjectToStreamTeacherRequest;
+import com.eduvod.eduvod.dto.request.schooladmin.AssignSubjectToTeacherRequest;
 import com.eduvod.eduvod.dto.request.schooladmin.AssignTeacherToStreamRequest;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.schooladmin.StreamTeacherResponse;
 import com.eduvod.eduvod.service.schooladmin.StreamTeacherService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/schooladmin/stream-teachers")
+@RequestMapping("/api/v1/schooladmin/teachers")
 @RequiredArgsConstructor
-@Tag(name = "School Admin - Stream Teacher Management", description = "Endpoints for assigning teachers and subjects to streams")
+@Tag(name = "Teacher Management", description = "Endpoints for assigning teachers and subjects to streams")
 public class StreamTeacherController {
 
     private final StreamTeacherService streamTeacherService;
@@ -43,7 +43,7 @@ public class StreamTeacherController {
     })
     @PostMapping("/assign-subjects")
     public ResponseEntity<BaseApiResponse<String>> assignSubjectsToTeacher(
-            @RequestBody AssignSubjectToStreamTeacherRequest request) {
+            @RequestBody AssignSubjectToTeacherRequest request) {
         return ResponseEntity.ok(streamTeacherService.assignSubjectsToStreamTeacher(request));
     }
 

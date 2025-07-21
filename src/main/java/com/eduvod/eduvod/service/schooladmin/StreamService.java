@@ -2,7 +2,7 @@ package com.eduvod.eduvod.service.schooladmin;
 
 import com.eduvod.eduvod.dto.request.schooladmin.StreamRequest;
 import com.eduvod.eduvod.dto.response.schooladmin.StreamResponse;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 
 import java.util.List;
 

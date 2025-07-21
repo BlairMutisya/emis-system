@@ -1,7 +1,7 @@
 package com.eduvod.eduvod.controller.schooladmin;
 
 import com.eduvod.eduvod.dto.request.schooladmin.CreateClassRequest;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.schooladmin.ClassResponse;
 import com.eduvod.eduvod.service.schooladmin.SchoolClassService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.web.bind.annotation.RequestBody;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

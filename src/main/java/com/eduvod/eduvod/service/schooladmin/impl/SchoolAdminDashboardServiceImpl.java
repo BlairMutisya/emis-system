@@ -1,9 +1,9 @@
 package com.eduvod.eduvod.service.schooladmin.impl;
 
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.schooladmin.SchoolAdminDashboardResponse;
 import com.eduvod.eduvod.model.schooladmin.Student;
-import com.eduvod.eduvod.model.schooladmin.Teacher;
+import com.eduvod.eduvod.model.schooladmin.Staff;
 import com.eduvod.eduvod.repository.schooladmin.*;
 import com.eduvod.eduvod.security.util.AuthUtil;
 import com.eduvod.eduvod.service.schooladmin.SchoolAdminDashboardService;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class SchoolAdminDashboardServiceImpl implements SchoolAdminDashboardService {
 
     private final StudentRepository studentRepository;
-    private final TeacherRepository teacherRepository;
+    private final StaffRepository staffRepository;
     private final GuardianRepository guardianRepository;
     private final StreamRepository streamRepository;
     private final SchoolClassRepository schoolClassRepository;
@@ -29,7 +29,9 @@ public class SchoolAdminDashboardServiceImpl implements SchoolAdminDashboardServ
         var school = authUtil.getCurrentSchoolAdmin().getSchool();
 
         List<Student> students = studentRepository.findByStream_SchoolClass_School(school);
-        List<Teacher> teachers = teacherRepository.findBySchool(school);
+
+        // Filter staff who are flagged as teachers
+        List<Staff> teachers = staffRepository.findBySchoolAndIsTeacherTrue(school);
 
         // Students by gender
         Map<String, Long> studentCountByGender = students.stream()
@@ -40,7 +42,7 @@ public class SchoolAdminDashboardServiceImpl implements SchoolAdminDashboardServ
                 .filter(Student::isDifferentlyAbled)
                 .collect(Collectors.groupingBy(s -> s.getGender() != null ? s.getGender().name() : "UNSPECIFIED", Collectors.counting()));
 
-        // Teachers by gender
+        // Teachers by gender (only staff with isTeacher = true)
         Map<String, Long> teacherCountByGender = teachers.stream()
                 .collect(Collectors.groupingBy(t -> t.getGender() != null ? t.getGender().name() : "UNSPECIFIED", Collectors.counting()));
 

@@ -1,7 +1,8 @@
 package com.eduvod.eduvod.service.superadmin.impl;
 
 import com.eduvod.eduvod.dto.request.superadmin.SchoolRequest;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.PagedResponse;
 import com.eduvod.eduvod.dto.response.superadmin.SchoolResponse;
 import com.eduvod.eduvod.model.superadmin.*;
 import com.eduvod.eduvod.repository.superadmin.*;
@@ -11,6 +12,10 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import lombok.extern.slf4j.Slf4j;
@@ -350,6 +355,27 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
                 .website(school.getWebsite())
                 .build();
     }
+    @Override
+    public PagedResponse<SchoolResponse> getAllSchools(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
+        Page<School> schoolsPage = schoolRepository.findAll(pageable);
+
+        List<SchoolResponse> content = schoolsPage
+                .getContent()
+                .stream()
+                .map(this::toSchoolResponse)
+                .toList();
+
+        return new PagedResponse<>(
+                content,
+                schoolsPage.getNumber(),
+                schoolsPage.getSize(),
+                schoolsPage.getTotalElements(),
+                schoolsPage.getTotalPages(),
+                schoolsPage.isLast()
+        );
+    }
+
 
 
 //    @Override

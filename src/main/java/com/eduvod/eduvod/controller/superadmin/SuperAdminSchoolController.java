@@ -1,7 +1,8 @@
 package com.eduvod.eduvod.controller.superadmin;
 
 import com.eduvod.eduvod.dto.request.superadmin.SchoolRequest;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.PagedResponse;
 import com.eduvod.eduvod.dto.response.superadmin.SchoolResponse;
 import com.eduvod.eduvod.service.superadmin.SchoolService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,51 +28,36 @@ public class SuperAdminSchoolController {
 
     private final SchoolService schoolService;
 
-    @Operation(
-            summary = "Create new school",
-            description = "Creates a new school with details such as name, type, category, etc.",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "School created successfully",
-                            content = @Content(schema = @Schema(implementation = SchoolResponse.class))),
-                    @ApiResponse(responseCode = "400", description = "Invalid request payload")
-            }
-    )
     @PostMapping
+    @Operation(summary = "Create new school", description = "Creates a new school with full details")
     public ResponseEntity<BaseApiResponse<SchoolResponse>> create(@RequestBody SchoolRequest request) {
         SchoolResponse response = schoolService.createSchool(request);
-        return ResponseEntity.ok(BaseApiResponse.<SchoolResponse>builder()
-                .statusCode(200)
-                .message("School created successfully")
-                .data(response)
-                .build());
+        return ResponseEntity.ok(BaseApiResponse.success("School created successfully", response));
     }
 
-    @Operation(
-            summary = "Get all schools",
-            description = "Retrieves all schools registered in the system",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Fetched schools successfully",
-                            content = @Content(schema = @Schema(implementation = SchoolResponse.class)))
-            }
-    )
     @GetMapping
-    public ResponseEntity<BaseApiResponse<List<SchoolResponse>>> getAll() {
-        List<SchoolResponse> schools = schoolService.getAllSchools();
-        return ResponseEntity.ok(BaseApiResponse.<List<SchoolResponse>>builder()
-                .statusCode(200)
-                .message("Fetched schools successfully")
-                .data(schools)
-                .build());
+    @Operation(
+            summary = "Get schools (paginated or all)",
+            description = "Returns all schools if no pagination is provided, or paginated results if `page` and `size` are specified"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Schools fetched successfully")
+    })
+    public ResponseEntity<BaseApiResponse<?>> getSchools(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
+    ) {
+        if (page != null && size != null) {
+            PagedResponse<SchoolResponse> paged = schoolService.getAllSchools(page, size);
+            return ResponseEntity.ok(BaseApiResponse.success("Paginated schools fetched successfully", paged));
+        }
+
+        List<SchoolResponse> all = schoolService.getAllSchools();
+        return ResponseEntity.ok(BaseApiResponse.success("All schools fetched successfully", all));
     }
 
-    @Operation(
-            summary = "Download school import template",
-            description = "Provides an Excel/CSV file template for importing school data",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Template file downloaded")
-            }
-    )
     @GetMapping("/template-download")
+    @Operation(summary = "Download school import template", description = "Provides an Excel file template for importing schools")
     public ResponseEntity<Resource> exportSchools() {
         Resource file = schoolService.exportSchools();
         return ResponseEntity.ok()
@@ -79,55 +65,26 @@ public class SuperAdminSchoolController {
                 .body(file);
     }
 
-    @Operation(
-            summary = "Import schools from template",
-            description = "Uploads an Excel/CSV file to bulk create schools",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Schools imported successfully"),
-                    @ApiResponse(responseCode = "400", description = "Invalid file format or parsing error")
-            }
-    )
     @PostMapping("/template-import")
+    @Operation(summary = "Import schools", description = "Uploads an Excel/CSV file to bulk create schools")
     public ResponseEntity<BaseApiResponse<String>> importSchools(@RequestParam("file") MultipartFile file) {
         schoolService.importSchools(file);
-        return ResponseEntity.ok(BaseApiResponse.<String>builder()
-                .statusCode(200)
-                .message("Schools imported successfully")
-                .data("Import completed")
-                .build());
+        return ResponseEntity.ok(BaseApiResponse.success("Schools imported successfully", "Import completed"));
     }
+
     @PutMapping("/{id}")
-    @Operation(
-            summary = "Update a school",
-            description = "Updates the details of a specific school by ID",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "School updated successfully",
-                            content = @Content(schema = @Schema(implementation = SchoolResponse.class))
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Invalid input or school not found",
-                            content = @Content
-                    )
-            }
-    )
+    @Operation(summary = "Update a school", description = "Updates the details of a specific school by ID")
     public ResponseEntity<BaseApiResponse<SchoolResponse>> updateSchool(
             @PathVariable Long id,
-            @org.springframework.web.bind.annotation.RequestBody SchoolRequest request
+            @RequestBody SchoolRequest request
     ) {
         request.setId(id);
         return ResponseEntity.ok(schoolService.updateSchool(request));
     }
+
     @GetMapping("/{id}")
-    @Operation(summary = "Get school by ID", description = "Fetch a single school's full details by its ID")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "School found successfully"),
-            @ApiResponse(responseCode = "404", description = "School not found")
-    })
+    @Operation(summary = "Get school by ID", description = "Fetches a single school by its ID")
     public ResponseEntity<BaseApiResponse<SchoolResponse>> getSchoolById(@PathVariable Long id) {
         return ResponseEntity.ok(schoolService.getSchoolById(id));
     }
-
 }

@@ -5,7 +5,7 @@ import com.eduvod.eduvod.dto.response.schooladmin.GuardianResponse;
 import com.eduvod.eduvod.model.schooladmin.Guardian;
 import com.eduvod.eduvod.repository.schooladmin.GuardianRepository;
 import com.eduvod.eduvod.service.schooladmin.GuardianService;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

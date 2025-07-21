@@ -1,7 +1,7 @@
 package com.eduvod.eduvod.controller.superadmin;
 
 import com.eduvod.eduvod.dto.request.superadmin.TypeRequest;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.superadmin.TypeResponse;
 import com.eduvod.eduvod.service.superadmin.SchoolCategoryService;
 import io.swagger.v3.oas.annotations.Operation;

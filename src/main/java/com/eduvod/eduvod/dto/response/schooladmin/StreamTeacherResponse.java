@@ -7,8 +7,8 @@ import lombok.Data;
 @Builder
 public class StreamTeacherResponse {
     private Long id;
-    private Long teacherId;
-    private String teacherName;
+    private Long staffId;
+    private String staffName;
     private Long streamId;
     private String streamName;
 }

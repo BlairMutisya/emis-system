@@ -1,5 +1,6 @@
 package com.eduvod.eduvod.service.schooladmin.impl;
 
+import com.eduvod.eduvod.dto.response.common.PagedResponse;
 import com.eduvod.eduvod.dto.response.schooladmin.SchoolResponse;
 import com.eduvod.eduvod.model.superadmin.School;
 import com.eduvod.eduvod.repository.superadmin.SchoolRepository;
@@ -7,6 +8,10 @@ import com.eduvod.eduvod.repository.superadmin.SchoolAdminRepository;
 import com.eduvod.eduvod.security.util.AuthUtil;
 import com.eduvod.eduvod.service.schooladmin.SchoolService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -77,4 +83,6 @@ public class SchoolAdminSchoolServiceImpl implements SchoolService {
                 .schoolType(school.getType().getName())
                 .build();
     }
+
+
 }

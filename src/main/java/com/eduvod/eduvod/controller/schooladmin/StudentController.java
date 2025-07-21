@@ -1,7 +1,7 @@
 package com.eduvod.eduvod.controller.schooladmin;
 
 import com.eduvod.eduvod.dto.request.schooladmin.StudentRequest;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.schooladmin.StudentResponse;
 import com.eduvod.eduvod.service.schooladmin.StudentService;
 import com.eduvod.eduvod.repository.schooladmin.StreamRepository;
@@ -24,7 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/schooladmin/students")
 @RequiredArgsConstructor
-@Tag(name = "School Admin - Student Management", description = "Endpoints for managing students")
+@Tag(name = "Student Management", description = "Endpoints for managing students")
 public class StudentController {
 
     private final StudentService studentService;

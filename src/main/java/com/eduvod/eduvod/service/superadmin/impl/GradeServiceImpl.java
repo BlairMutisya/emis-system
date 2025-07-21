@@ -1,7 +1,7 @@
 package com.eduvod.eduvod.service.superadmin.impl;
 
 import com.eduvod.eduvod.dto.request.superadmin.GradeRequest;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.superadmin.GradeResponse;
 import com.eduvod.eduvod.model.superadmin.CurriculumType;
 import com.eduvod.eduvod.model.superadmin.Grade;
@@ -54,9 +54,17 @@ public class GradeServiceImpl implements GradeService {
         Grade grade = gradeRepository.findById(gradeId)
                 .orElseThrow(() -> new RuntimeException("Grade not found"));
 
-        // TODO: Add check if grade is assigned to any school (future logic)
         gradeRepository.delete(grade);
         return BaseApiResponse.success("Grade deleted successfully");
+    }
+
+    @Override
+    public BaseApiResponse<List<GradeResponse>> getGradesByCurriculum(Long curriculumId) {
+        List<Grade> grades = gradeRepository.findByCurriculumId(curriculumId);
+        List<GradeResponse> responses = grades.stream()
+                .map(this::toResponse)
+                .toList();
+        return BaseApiResponse.success(responses);
     }
 
     private GradeResponse toResponse(Grade grade) {

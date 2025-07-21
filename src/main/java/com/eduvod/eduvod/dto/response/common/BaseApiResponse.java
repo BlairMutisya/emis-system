@@ -1,4 +1,4 @@
-package com.eduvod.eduvod.dto.response;
+package com.eduvod.eduvod.dto.response.common;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;

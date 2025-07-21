@@ -1,7 +1,7 @@
 package com.eduvod.eduvod.controller.superadmin;
 
 import com.eduvod.eduvod.dto.request.superadmin.GradeRequest;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.superadmin.GradeResponse;
 import com.eduvod.eduvod.service.superadmin.GradeService;
 import io.swagger.v3.oas.annotations.Operation;

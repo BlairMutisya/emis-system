@@ -2,7 +2,7 @@ package com.eduvod.eduvod.controller.schooladmin;
 
 import com.eduvod.eduvod.dto.request.schooladmin.StreamRequest;
 import com.eduvod.eduvod.dto.response.schooladmin.StreamResponse;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.service.schooladmin.StreamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/schooladmin/streams")
 @RequiredArgsConstructor
-@Tag(name = "School Admin - Streams", description = "Endpoints for managing class streams")
+@Tag(name = "Streams", description = "Endpoints for managing class streams")
 public class StreamController {
 
     private final StreamService streamService;

@@ -1,6 +1,6 @@
 package com.eduvod.eduvod.controller.schooladmin;
 
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.schooladmin.SchoolResponse;
 import com.eduvod.eduvod.service.schooladmin.SchoolService;
 import io.swagger.v3.oas.annotations.Operation;

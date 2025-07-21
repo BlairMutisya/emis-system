@@ -1,7 +1,7 @@
 package com.eduvod.eduvod.service.superadmin;
 
 import com.eduvod.eduvod.dto.request.superadmin.SubCountyRequest;
-import com.eduvod.eduvod.dto.response.BaseApiResponse;
+import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.superadmin.SubCountyResponse;
 
 import java.util.List;

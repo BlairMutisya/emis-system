@@ -5,7 +5,7 @@ import lombok.*;
 
 
 @Entity
-@Table(name = "stream_teachers")
+@Table(name = "teachers")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,7 +16,7 @@ public class StreamTeacher extends BaseEntity {
     private Long id;
 
     @ManyToOne(optional = false)
-    private Teacher teacher;
+    private Staff staff;
 
     @ManyToOne(optional = false)
     private Stream stream;
