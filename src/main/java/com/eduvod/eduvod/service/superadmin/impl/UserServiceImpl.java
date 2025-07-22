@@ -1,7 +1,9 @@
 package com.eduvod.eduvod.service.superadmin.impl;
 
+import com.eduvod.eduvod.constants.ErrorMessages;
 import com.eduvod.eduvod.dto.response.superadmin.UserResponse;
 import com.eduvod.eduvod.enums.UserStatus;
+import com.eduvod.eduvod.exception.UserNotFoundException;
 import com.eduvod.eduvod.model.shared.RoleType;
 import com.eduvod.eduvod.model.shared.User;
 import com.eduvod.eduvod.repository.shared.UserRepository;
@@ -29,7 +31,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changeStatus(Long userId, UserStatus status) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(ErrorMessages.USER_NOT_FOUND));
         user.setStatus(status);
         userRepository.save(user);
     }
@@ -37,7 +39,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void softDeleteUser(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(ErrorMessages.USER_NOT_FOUND));
         user.setDeletedAt(LocalDateTime.now());
         userRepository.save(user);
     }

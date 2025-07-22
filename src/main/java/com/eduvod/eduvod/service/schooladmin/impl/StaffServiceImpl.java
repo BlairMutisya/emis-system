@@ -1,8 +1,10 @@
 package com.eduvod.eduvod.service.schooladmin.impl;
 
+import com.eduvod.eduvod.constants.ErrorMessages;
 import com.eduvod.eduvod.dto.request.schooladmin.StaffRequest;
 import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.schooladmin.StaffResponse;
+import com.eduvod.eduvod.exception.ResourceNotFoundException;
 import com.eduvod.eduvod.model.schooladmin.Staff;
 import com.eduvod.eduvod.repository.schooladmin.StaffRepository;
 import com.eduvod.eduvod.security.util.AuthUtil;
@@ -47,7 +49,8 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public BaseApiResponse<StaffResponse> updateStaff(Long id, StaffRequest request) {
         Staff staff = staffRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Staff not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.STAFF_NOT_FOUND));
+
 
         staff.setStaffNumber(request.getStaffNumber());
         staff.setFirstName(request.getFirstName());
@@ -68,7 +71,7 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public BaseApiResponse<Void> disableStaff(Long id) {
         Staff staff = staffRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Staff not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.STAFF_NOT_FOUND));
 
         staff.setDisabled(true);
         staffRepository.save(staff);
@@ -88,7 +91,8 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public BaseApiResponse<Void> deleteStaff(Long id) {
         Staff staff = staffRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Staff not found"));
+                .orElseThrow(() -> new RuntimeException(ErrorMessages.STAFF_NOT_FOUND));
+
 
         staff.setDeleted(true);
         staffRepository.save(staff);

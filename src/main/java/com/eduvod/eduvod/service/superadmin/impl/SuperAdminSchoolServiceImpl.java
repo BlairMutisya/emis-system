@@ -1,13 +1,19 @@
 package com.eduvod.eduvod.service.superadmin.impl;
 
+import com.eduvod.eduvod.constants.ErrorMessages;
 import com.eduvod.eduvod.dto.request.superadmin.SchoolRequest;
 import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.common.PagedResponse;
 import com.eduvod.eduvod.dto.response.superadmin.SchoolResponse;
+import com.eduvod.eduvod.exception.BadRequestException;
+import com.eduvod.eduvod.exception.ResourceNotFoundException;
+import com.eduvod.eduvod.exception.SchoolExportException;
+import com.eduvod.eduvod.exception.SchoolImportException;
 import com.eduvod.eduvod.model.superadmin.*;
 import com.eduvod.eduvod.repository.superadmin.*;
 import com.eduvod.eduvod.service.superadmin.SchoolService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.Resource;
@@ -18,7 +24,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -43,112 +48,97 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
     private CurriculumType resolveCurriculum(SchoolRequest request) {
         if (request.getCurriculumId() != null) {
             return curriculumTypeRepository.findById(request.getCurriculumId())
-                    .orElseThrow(() -> new RuntimeException("Invalid curriculum ID"));
+                    .orElseThrow(() -> new BadRequestException(ErrorMessages.INVALID_CURRICULUM_ID));
         } else if (request.getCurriculumName() != null) {
             return curriculumTypeRepository.findByName(request.getCurriculumName())
-                    .orElseThrow(() -> new RuntimeException("Invalid curriculum name"));
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.CURRICULUM_NOT_FOUND));
         }
-        throw new RuntimeException("Curriculum is required");
+        throw new BadRequestException(ErrorMessages.CURRICULUM_REQUIRED);
     }
 
     private SchoolCategory resolveCategory(SchoolRequest request) {
         if (request.getCategoryId() != null) {
             return schoolCategoryRepository.findById(request.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Invalid category ID"));
+                    .orElseThrow(() -> new BadRequestException(ErrorMessages.INVALID_CATEGORY_ID));
         } else if (request.getCategoryName() != null) {
             return schoolCategoryRepository.findByName(request.getCategoryName())
-                    .orElseThrow(() -> new RuntimeException("Invalid category name"));
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.CATEGORY_NOT_FOUND));
         }
-        throw new RuntimeException("Category is required");
+        throw new BadRequestException(ErrorMessages.CATEGORY_REQUIRED);
     }
 
     private SchoolType resolveType(SchoolRequest request) {
         if (request.getTypeId() != null) {
             return schoolTypeRepository.findById(request.getTypeId())
-                    .orElseThrow(() -> new RuntimeException("Invalid type ID"));
+                    .orElseThrow(() -> new BadRequestException(ErrorMessages.INVALID_TYPE_ID));
         } else if (request.getTypeName() != null) {
             return schoolTypeRepository.findByName(request.getTypeName())
-                    .orElseThrow(() -> new RuntimeException("Invalid type name"));
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.TYPE_NOT_FOUND));
         }
-        throw new RuntimeException("Type is required");
+        throw new BadRequestException(ErrorMessages.TYPE_REQUIRED);
     }
 
     private Region resolveRegion(SchoolRequest request) {
         if (request.getRegionId() != null) {
             return regionRepository.findById(request.getRegionId())
-                    .orElseThrow(() -> new RuntimeException("Invalid region ID"));
+                    .orElseThrow(() -> new BadRequestException(ErrorMessages.INVALID_REGION_ID));
         } else if (request.getRegionName() != null) {
             return regionRepository.findByName(request.getRegionName())
-                    .orElseThrow(() -> new RuntimeException("Invalid region name"));
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.REGION_NOT_FOUND));
         }
-        throw new RuntimeException("Region is required");
+        throw new BadRequestException(ErrorMessages.REGION_REQUIRED);
     }
 
     private County resolveCounty(SchoolRequest request) {
         if (request.getCountyId() != null) {
             return countyRepository.findById(request.getCountyId())
-                    .orElseThrow(() -> new RuntimeException("Invalid county ID"));
+                    .orElseThrow(() -> new BadRequestException(ErrorMessages.INVALID_COUNTY_ID));
         } else if (request.getCountyName() != null) {
             return countyRepository.findByName(request.getCountyName())
-                    .orElseThrow(() -> new RuntimeException("Invalid county name"));
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.COUNTY_NOT_FOUND));
         }
-        throw new RuntimeException("County is required");
+        throw new BadRequestException(ErrorMessages.COUNTY_REQUIRED);
     }
 
     private SubCounty resolveSubCounty(SchoolRequest request) {
         if (request.getSubCountyId() != null) {
             return subCountyRepository.findById(request.getSubCountyId())
-                    .orElseThrow(() -> new RuntimeException("Invalid sub-county ID"));
+                    .orElseThrow(() -> new BadRequestException(ErrorMessages.INVALID_SUB_COUNTY_ID));
         } else if (request.getSubCountyName() != null) {
             return subCountyRepository.findByName(request.getSubCountyName())
-                    .orElseThrow(() -> new RuntimeException("Invalid sub-county name"));
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.SUB_COUNTY_NOT_FOUND));
         }
-        throw new RuntimeException("Sub-county is required");
+        throw new BadRequestException(ErrorMessages.SUB_COUNTY_REQUIRED);
     }
+
 
     @Override
     public SchoolResponse createSchool(SchoolRequest request) {
-        var curriculum = resolveCurriculum(request);
-        var category = resolveCategory(request);
-        var type = resolveType(request);
-        var region = resolveRegion(request);
-        var county = resolveCounty(request);
-        var subCounty = resolveSubCounty(request);
-
         var school = School.builder()
                 .moeRegNo(request.getMoeRegNo())
                 .kpsaRegNo(request.getKpsaRegNo())
                 .name(request.getName())
-                .curriculum(curriculum)
-                .curriculumName(curriculum.getName())
-                .category(category)
-                .categoryName(category.getName())
-                .type(type)
-                .typeName(type.getName())
+                .curriculum(resolveCurriculum(request))
+                .category(resolveCategory(request))
+                .type(resolveType(request))
                 .composition(request.getComposition())
                 .phone(request.getPhone())
                 .email(request.getEmail())
-                .region(region)
-                .regionName(region.getName())
-                .county(county)
-                .countyName(county.getName())
-                .subCounty(subCounty)
-                .subCountyName(subCounty.getName())
+                .region(resolveRegion(request))
+                .county(resolveCounty(request))
+                .subCounty(resolveSubCounty(request))
                 .location(request.getLocation())
                 .address(request.getAddress())
                 .website(request.getWebsite())
                 .build();
 
-        school = schoolRepository.save(school);
-
-        return toSchoolResponse(school);
-
+        setReferenceNames(school);
+        return toSchoolResponse(schoolRepository.save(school));
     }
 
     @Override
     public List<SchoolResponse> getAllSchools() {
-        return schoolRepository.findAll()
-                .stream()
+        return schoolRepository.findAll().stream()
                 .map(this::toSchoolResponse)
                 .collect(Collectors.toList());
     }
@@ -156,11 +146,9 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
     @Override
     public BaseApiResponse<SchoolResponse> getSchoolById(Long id) {
         School school = schoolRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("School not found with ID: " + id));
-
-        return BaseApiResponse.success("School fetched successfully", toSchoolResponse(school));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.SCHOOL_NOT_FOUND));
+        return BaseApiResponse.success(ErrorMessages.SCHOOL_FETCHED, toSchoolResponse(school));
     }
-
 
     @Override
     public void importSchools(MultipartFile file) {
@@ -168,7 +156,7 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
             Sheet sheet = workbook.getSheetAt(0);
 
             for (Row row : sheet) {
-                if (row.getRowNum() == 0) continue; // Skip header
+                if (row.getRowNum() == 0) continue;
 
                 String moeRegNo = getCellValue(row.getCell(0));
                 String kpsaRegNo = getCellValue(row.getCell(1));
@@ -198,77 +186,58 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
                     continue;
                 }
 
-
                 School school = School.builder()
                         .moeRegNo(moeRegNo)
                         .kpsaRegNo(kpsaRegNo)
                         .name(name)
                         .curriculum(curriculum)
-                        .curriculumName(curriculum.getName())
                         .category(category)
-                        .categoryName(category.getName())
                         .type(type)
-                        .typeName(type.getName())
                         .composition(composition)
                         .phone(phone)
                         .email(email)
                         .region(region)
-                        .regionName(region.getName())
                         .county(county)
-                        .countyName(county.getName())
                         .subCounty(subCounty)
-                        .subCountyName(subCounty.getName())
                         .location(location)
                         .address(address)
                         .website(website)
                         .build();
 
+                setReferenceNames(school);
                 schoolRepository.save(school);
             }
         } catch (Exception e) {
-            throw new RuntimeException("Failed to import schools: " + e.getMessage(), e);
+            throw new SchoolImportException(ErrorMessages.SCHOOL_IMPORT_FAILED + ": " + e.getMessage(), e);
+
         }
     }
 
     @Override
     public BaseApiResponse<SchoolResponse> updateSchool(SchoolRequest request) {
         var school = schoolRepository.findById(request.getId())
-                .orElseThrow(() -> new RuntimeException("School not found"));
-
-        var curriculum = resolveCurriculum(request);
-        var category = resolveCategory(request);
-        var type = resolveType(request);
-        var region = resolveRegion(request);
-        var county = resolveCounty(request);
-        var subCounty = resolveSubCounty(request);
-
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.SCHOOL_NOT_FOUND));
 
         school.setMoeRegNo(request.getMoeRegNo());
         school.setKpsaRegNo(request.getKpsaRegNo());
         school.setName(request.getName());
-        school.setCurriculum(curriculum);
-        school.setCurriculumName(curriculum.getName());
-        school.setCategory(category);
-        school.setCategoryName(category.getName());
-        school.setType(type);
-        school.setTypeName(type.getName());
+        school.setCurriculum(resolveCurriculum(request));
+        school.setCategory(resolveCategory(request));
+        school.setType(resolveType(request));
         school.setComposition(request.getComposition());
         school.setPhone(request.getPhone());
         school.setEmail(request.getEmail());
-        school.setRegion(region);
-        school.setRegionName(region.getName());
-        school.setCounty(county);
-        school.setCountyName(county.getName());
-        school.setSubCounty(subCounty);
-        school.setSubCountyName(subCounty.getName());
+        school.setRegion(resolveRegion(request));
+        school.setCounty(resolveCounty(request));
+        school.setSubCounty(resolveSubCounty(request));
         school.setLocation(request.getLocation());
         school.setAddress(request.getAddress());
         school.setWebsite(request.getWebsite());
 
+        setReferenceNames(school);
         schoolRepository.save(school);
 
-        return BaseApiResponse.success("School updated successfully", toSchoolResponse(school));
-
+        return BaseApiResponse.success(ErrorMessages.SCHOOL_UPDATED, toSchoolResponse(school));
     }
 
     @Override
@@ -282,19 +251,15 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
                     "County", "SubCounty", "Location", "Address", "Website"
             };
 
-            // Header row
             Row headerRow = sheet.createRow(0);
             for (int i = 0; i < headers.length; i++) {
-                Cell cell = headerRow.createCell(i);
-                cell.setCellValue(headers[i]);
+                headerRow.createCell(i).setCellValue(headers[i]);
             }
 
-            // Data rows
             List<School> schools = schoolRepository.findAll();
             int rowIdx = 1;
             for (School school : schools) {
                 Row row = sheet.createRow(rowIdx++);
-
                 row.createCell(0).setCellValue(school.getMoeRegNo());
                 row.createCell(1).setCellValue(school.getKpsaRegNo());
                 row.createCell(2).setCellValue(school.getName());
@@ -312,7 +277,6 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
                 row.createCell(14).setCellValue(school.getWebsite());
             }
 
-            // Save file
             Path tempFile = Files.createTempFile("schools_export", ".xlsx");
             try (OutputStream out = Files.newOutputStream(tempFile)) {
                 workbook.write(out);
@@ -321,10 +285,38 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
             return new UrlResource(tempFile.toUri());
 
         } catch (IOException e) {
-            throw new RuntimeException("Failed to export schools", e);
+            throw new SchoolExportException(ErrorMessages.SCHOOL_EXPORT_FAILED, e);
+
         }
     }
 
+    @Override
+    public PagedResponse<SchoolResponse> getAllSchools(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
+        Page<School> schoolsPage = schoolRepository.findAll(pageable);
+
+        List<SchoolResponse> content = schoolsPage.getContent().stream()
+                .map(this::toSchoolResponse)
+                .toList();
+
+        return new PagedResponse<>(
+                content,
+                schoolsPage.getNumber(),
+                schoolsPage.getSize(),
+                schoolsPage.getTotalElements(),
+                schoolsPage.getTotalPages(),
+                schoolsPage.isLast()
+        );
+    }
+
+    private void setReferenceNames(School school) {
+        school.setCurriculumName(school.getCurriculum().getName());
+        school.setCategoryName(school.getCategory().getName());
+        school.setTypeName(school.getType().getName());
+        school.setRegionName(school.getRegion().getName());
+        school.setCountyName(school.getCounty().getName());
+        school.setSubCountyName(school.getSubCounty().getName());
+    }
 
     private String getCellValue(Cell cell) {
         if (cell == null) return "";
@@ -335,6 +327,7 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
             default -> "";
         };
     }
+
     private SchoolResponse toSchoolResponse(School school) {
         return SchoolResponse.builder()
                 .id(school.getId())
@@ -355,66 +348,4 @@ public class SuperAdminSchoolServiceImpl implements SchoolService {
                 .website(school.getWebsite())
                 .build();
     }
-    @Override
-    public PagedResponse<SchoolResponse> getAllSchools(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
-        Page<School> schoolsPage = schoolRepository.findAll(pageable);
-
-        List<SchoolResponse> content = schoolsPage
-                .getContent()
-                .stream()
-                .map(this::toSchoolResponse)
-                .toList();
-
-        return new PagedResponse<>(
-                content,
-                schoolsPage.getNumber(),
-                schoolsPage.getSize(),
-                schoolsPage.getTotalElements(),
-                schoolsPage.getTotalPages(),
-                schoolsPage.isLast()
-        );
-    }
-
-
-
-//    @Override
-//    public Resource getImportTemplate() {
-//        try (Workbook workbook = new XSSFWorkbook()) {
-//            Sheet sheet = workbook.createSheet("Schools");
-//
-//            String[] headers = {
-//                    "MoeRegNo", "KpsaRegNo", "Name", "CurriculumType", "Category",
-//                    "Type", "Composition", "Phone", "Email", "Region",
-//                    "County", "SubCounty", "Location", "Address", "Website"
-//            };
-//
-//            CellStyle headerStyle = workbook.createCellStyle();
-//            Font headerFont = workbook.createFont();
-//            headerFont.setBold(true);
-//            headerFont.setColor(IndexedColors.WHITE.getIndex());
-//            headerStyle.setFont(headerFont);
-//            headerStyle.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
-//            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-//            headerStyle.setAlignment(HorizontalAlignment.CENTER);
-//
-//            Row headerRow = sheet.createRow(0);
-//            for (int i = 0; i < headers.length; i++) {
-//                Cell cell = headerRow.createCell(i);
-//                cell.setCellValue(headers[i]);
-//                cell.setCellStyle(headerStyle);
-//                sheet.autoSizeColumn(i);
-//            }
-//
-//            Path tempFile = Files.createTempFile("school_import_template", ".xlsx");
-//            try (OutputStream out = Files.newOutputStream(tempFile)) {
-//                workbook.write(out);
-//            }
-//
-//            return new UrlResource(tempFile.toUri());
-//
-//        } catch (IOException e) {
-//            throw new RuntimeException("Failed to generate import template", e);
-//        }
-//    }
 }

@@ -132,5 +132,22 @@ public class StudentController {
                     .body(new BaseApiResponse<>(400, "Failed to import students", e.getMessage()));
         }
     }
+    @PutMapping("/{studentId}/assign-guardian/{guardianId}")
+    @Operation(
+            summary = "Assign a guardian to a student",
+            description = "Assigns a guardian to the specified student by their IDs."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Guardian assigned successfully"),
+            @ApiResponse(responseCode = "404", description = "Student or Guardian not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public ResponseEntity<BaseApiResponse<StudentResponse>> assignGuardian(
+            @PathVariable Long studentId,
+            @PathVariable Long guardianId) {
+
+        BaseApiResponse<StudentResponse> response = studentService.assignGuardian(studentId, guardianId);
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatusCode()));
+    }
 
 }

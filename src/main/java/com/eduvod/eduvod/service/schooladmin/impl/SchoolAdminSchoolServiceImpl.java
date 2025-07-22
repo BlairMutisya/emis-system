@@ -1,7 +1,9 @@
 package com.eduvod.eduvod.service.schooladmin.impl;
 
+import com.eduvod.eduvod.constants.ErrorMessages;
 import com.eduvod.eduvod.dto.response.common.PagedResponse;
 import com.eduvod.eduvod.dto.response.schooladmin.SchoolResponse;
+import com.eduvod.eduvod.exception.ResourceNotFoundException;
 import com.eduvod.eduvod.model.superadmin.School;
 import com.eduvod.eduvod.repository.superadmin.SchoolRepository;
 import com.eduvod.eduvod.repository.superadmin.SchoolAdminRepository;
@@ -36,7 +38,10 @@ public class SchoolAdminSchoolServiceImpl implements SchoolService {
         var schoolAdmin = authUtil.getCurrentSchoolAdmin();
         School school = schoolAdmin.getSchool();
 
-        if (school == null) throw new RuntimeException("School not assigned");
+        if (school == null) {
+            throw new ResourceNotFoundException(ErrorMessages.SCHOOL_NOT_ASSIGNED);
+        }
+
 
         return mapToResponse(school);
     }
@@ -46,7 +51,10 @@ public class SchoolAdminSchoolServiceImpl implements SchoolService {
         var schoolAdmin = authUtil.getCurrentSchoolAdmin();
         School school = schoolAdmin.getSchool();
 
-        if (school == null) throw new RuntimeException("School not assigned");
+        if (school == null) {
+            throw new ResourceNotFoundException(ErrorMessages.SCHOOL_NOT_ASSIGNED);
+        }
+
 
         try {
             // Save file
@@ -66,8 +74,9 @@ public class SchoolAdminSchoolServiceImpl implements SchoolService {
             return mapToResponse(school);
 
         } catch (IOException e) {
-            throw new RuntimeException("Failed to upload logo", e);
+            throw new RuntimeException(ErrorMessages.LOGO_UPLOAD_FAILED, e);
         }
+
     }
 
     private SchoolResponse mapToResponse(School school) {

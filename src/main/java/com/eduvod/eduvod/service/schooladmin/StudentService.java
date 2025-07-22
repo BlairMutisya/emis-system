@@ -14,4 +14,6 @@ public interface StudentService {
     BaseApiResponse<StudentResponse> getStudentById(Long id);
     BaseApiResponse<List<StudentResponse>> getStudentsByStreamId(Long streamId);
     BaseApiResponse<String> importStudents(Long streamId, MultipartFile file) throws Exception;
-    }
+    BaseApiResponse<StudentResponse> assignGuardian(Long studentId, Long guardianId);
+
+}

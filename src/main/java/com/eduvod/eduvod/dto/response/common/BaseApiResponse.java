@@ -58,4 +58,12 @@ public class BaseApiResponse<T> {
                 .data(null)
                 .build();
     }
+    public static <T> BaseApiResponse<T> error(int statusCode, String message) {
+        return BaseApiResponse.<T>builder()
+                .statusCode(statusCode)
+                .message(message)
+                .data(null)
+                .build();
+    }
+
 }

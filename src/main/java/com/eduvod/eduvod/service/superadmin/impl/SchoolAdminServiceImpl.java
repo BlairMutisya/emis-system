@@ -1,10 +1,12 @@
 package com.eduvod.eduvod.service.superadmin.impl;
 
+import com.eduvod.eduvod.constants.ErrorMessages;
 import com.eduvod.eduvod.dto.request.superadmin.*;
 import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.superadmin.AssignSchoolResponse;
 import com.eduvod.eduvod.dto.response.superadmin.SchoolAdminResponse;
 import com.eduvod.eduvod.enums.UserStatus;
+import com.eduvod.eduvod.exception.ResourceNotFoundException;
 import com.eduvod.eduvod.model.shared.RoleType;
 import com.eduvod.eduvod.model.shared.User;
 import com.eduvod.eduvod.model.superadmin.School;
@@ -78,8 +80,9 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
         }
 
         if (request.getSchoolId() != null) {
-            admin.setSchool(schoolRepository.findById(request.getSchoolId())
-                    .orElseThrow(() -> new RuntimeException("School not found")));
+            School school = schoolRepository.findById(request.getSchoolId())
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.SCHOOL_NOT_FOUND));
+            admin.setSchool(school);
         }
 
         // Ensure admin is saved
@@ -93,7 +96,7 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
     private String generateRandomPassword() {
         return UUID.randomUUID().toString()
                 .replace("-", "")
-                .substring(0, 10); // 10-character password
+                .substring(0, 10);
     }
 
 
@@ -125,23 +128,23 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
     public void updatePassword(Long id, UpdateSchoolAdminPasswordRequest request) {
         var admin = getById(request.getSchoolAdminId());
         admin.getUser().setPassword(passwordEncoder.encode(request.getNewPassword()));
-        repository.save(admin); // This cascades and saves user as well
+        repository.save(admin);
     }
 
 
     @Override
     public BaseApiResponse<AssignSchoolResponse> assignSchool(AssignSchoolRequest request) {
         // Fetch SchoolAdmin with associated User
-        SchoolAdmin admin = repository.findByIdWithUser(request.getSchoolAdminId())
-                .orElseThrow(() -> new RuntimeException("SchoolAdmin not found"));
+        SchoolAdmin admin = repository.findById(request.getSchoolAdminId())
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.SCHOOL_ADMIN_NOT_FOUND));
 
         // Fetch School
         School school = schoolRepository.findById(request.getSchoolId())
-                .orElseThrow(() -> new RuntimeException("School not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.SCHOOL_NOT_FOUND));
 
         // Avoid re-assigning the same school
         if (admin.getSchool() != null && admin.getSchool().getId().equals(school.getId())) {
-            throw new IllegalStateException("SchoolAdmin is already assigned to this school");
+            throw new IllegalStateException(ErrorMessages.SCHOOL_ALREADY_ASSIGNED);
         }
 
         // Assign the school
@@ -167,15 +170,10 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
         return new BaseApiResponse<>(200, "School assignment successful", response);
     }
 
-
-
-
-
-
     @Override
     public BaseApiResponse<String> unassignSchool(Long schoolAdminId) {
         SchoolAdmin admin = schoolAdminRepository.findById(schoolAdminId)
-                .orElseThrow(() -> new RuntimeException("School admin not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.SCHOOL_ADMIN_NOT_FOUND));
 
         School school = admin.getSchool(); // Capture school before unassignment
 
@@ -187,7 +185,6 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
                     school.getRegion() != null ? school.getRegion().getName() : "N/A"
             );
 
-
             // Send unassignment email
             emailService.sendSchoolUnassignmentEmail(admin.getUser(), school.getName(), school.getMoeRegNo(), location);
         }
@@ -197,12 +194,9 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
 
         return new BaseApiResponse<>(200, "School unassigned successfully", null);
     }
-
-
-
-
     private SchoolAdmin getById(Long id) {
-        return repository.findById(id).orElseThrow(() -> new RuntimeException("School admin not found"));
+        return repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.SCHOOL_ADMIN_NOT_FOUND));
     }
 
     private SchoolAdminResponse mapToResponse(SchoolAdmin admin) {
@@ -214,6 +208,4 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
                 .status(admin.getStatus())
                 .build();
     }
-
-
 }

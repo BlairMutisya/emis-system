@@ -4,6 +4,7 @@ import com.eduvod.eduvod.dto.request.superadmin.CountyRequest;
 import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.superadmin.CountyResponse;
 import com.eduvod.eduvod.dto.response.superadmin.SubCountyResponse;
+import com.eduvod.eduvod.exception.ResourceNotFoundException;
 import com.eduvod.eduvod.model.superadmin.County;
 import com.eduvod.eduvod.model.superadmin.Region;
 import com.eduvod.eduvod.repository.superadmin.CountyRepository;
@@ -14,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.eduvod.eduvod.constants.ErrorMessages.*;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +29,7 @@ public class CountyServiceImpl implements CountyService {
     @Override
     public BaseApiResponse<CountyResponse> createCounty(CountyRequest request) {
         Region region = regionRepository.findById(request.getRegionId())
-                .orElseThrow(() -> new RuntimeException("Region not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(REGION_NOT_FOUND));
 
         County county = County.builder()
                 .code(request.getCode())
@@ -40,10 +43,10 @@ public class CountyServiceImpl implements CountyService {
     @Override
     public BaseApiResponse<CountyResponse> updateCounty(Long id, CountyRequest request) {
         County county = countyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("County not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(COUNTY_NOT_FOUND));
 
         Region region = regionRepository.findById(request.getRegionId())
-                .orElseThrow(() -> new RuntimeException("Region not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(REGION_NOT_FOUND));
 
         county.setCode(request.getCode());
         county.setName(request.getName());
@@ -54,14 +57,16 @@ public class CountyServiceImpl implements CountyService {
 
     @Override
     public BaseApiResponse<String> deleteCounty(Long id) {
-        countyRepository.deleteById(id);
+        County county = countyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(COUNTY_NOT_FOUND));
+        countyRepository.delete(county);
         return new BaseApiResponse<>(200, "County deleted", "Deleted");
     }
 
     @Override
     public BaseApiResponse<CountyResponse> getByCountyId(Long id) {
         County county = countyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("County not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(COUNTY_NOT_FOUND));
         return new BaseApiResponse<>(200, "County fetched", mapToResponse(county));
     }
 
@@ -75,7 +80,7 @@ public class CountyServiceImpl implements CountyService {
     @Override
     public BaseApiResponse<List<CountyResponse>> getByRegionId(Long regionId) {
         Region region = regionRepository.findById(regionId)
-                .orElseThrow(() -> new RuntimeException("Region not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(REGION_NOT_FOUND));
         List<CountyResponse> counties = countyRepository.findByRegion(region)
                 .stream().map(this::mapToResponse).toList();
         return new BaseApiResponse<>(200, "Counties for region fetched", counties);
@@ -84,7 +89,7 @@ public class CountyServiceImpl implements CountyService {
     @Override
     public BaseApiResponse<List<SubCountyResponse>> getSubCountiesByCountyId(Long countyId) {
         County county = countyRepository.findById(countyId)
-                .orElseThrow(() -> new RuntimeException("County not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(COUNTY_NOT_FOUND));
 
         List<SubCountyResponse> subCounties = subCountyRepository.findByCounty(county)
                 .stream()

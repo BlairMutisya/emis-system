@@ -1,8 +1,11 @@
 package com.eduvod.eduvod.service.superadmin.impl;
 
+import com.eduvod.eduvod.constants.ErrorMessages;
 import com.eduvod.eduvod.dto.request.superadmin.GradeRequest;
 import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.superadmin.GradeResponse;
+import com.eduvod.eduvod.exception.DuplicateResourceException;
+import com.eduvod.eduvod.exception.ResourceNotFoundException;
 import com.eduvod.eduvod.model.superadmin.CurriculumType;
 import com.eduvod.eduvod.model.superadmin.Grade;
 import com.eduvod.eduvod.repository.superadmin.CurriculumTypeRepository;
@@ -24,11 +27,11 @@ public class GradeServiceImpl implements GradeService {
     @Override
     public BaseApiResponse<GradeResponse> createGrade(GradeRequest request) {
         if (gradeRepository.existsByName(request.getName())) {
-            throw new RuntimeException("Grade with this name already exists.");
+            throw new DuplicateResourceException(ErrorMessages.GRADE_ALREADY_EXISTS);
         }
 
         CurriculumType curriculum = curriculumTypeRepository.findById(request.getCurriculumId())
-                .orElseThrow(() -> new RuntimeException("Curriculum not found."));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.CURRICULUM_NOT_FOUND));
 
         Grade grade = Grade.builder()
                 .name(request.getName())
@@ -37,7 +40,11 @@ public class GradeServiceImpl implements GradeService {
 
         gradeRepository.save(grade);
 
-        return BaseApiResponse.success(toResponse(grade));
+        return new BaseApiResponse<>(
+                ErrorMessages.STATUS_CREATED,
+                ErrorMessages.GRADE_CREATED,
+                toResponse(grade)
+        );
     }
 
     @Override
@@ -45,26 +52,43 @@ public class GradeServiceImpl implements GradeService {
         List<GradeResponse> responses = gradeRepository.findAll().stream()
                 .map(this::toResponse)
                 .toList();
-        return BaseApiResponse.success(responses);
+
+        return new BaseApiResponse<>(
+                ErrorMessages.STATUS_OK,
+                ErrorMessages.ALL_GRADES_FETCHED,
+                responses
+        );
     }
 
     @Override
     @Transactional
     public BaseApiResponse<String> deleteGrade(Long gradeId) {
         Grade grade = gradeRepository.findById(gradeId)
-                .orElseThrow(() -> new RuntimeException("Grade not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.GRADE_NOT_FOUND));
 
         gradeRepository.delete(grade);
-        return BaseApiResponse.success("Grade deleted successfully");
+
+        return new BaseApiResponse<>(
+                ErrorMessages.STATUS_OK,
+                ErrorMessages.GRADE_DELETED,
+                "Grade deleted successfully"
+        );
     }
 
     @Override
     public BaseApiResponse<List<GradeResponse>> getGradesByCurriculum(Long curriculumId) {
-        List<Grade> grades = gradeRepository.findByCurriculumId(curriculumId);
-        List<GradeResponse> responses = grades.stream()
+        CurriculumType curriculum = curriculumTypeRepository.findById(curriculumId)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.CURRICULUM_NOT_FOUND));
+
+        List<GradeResponse> responses = gradeRepository.findByCurriculumId(curriculumId).stream()
                 .map(this::toResponse)
                 .toList();
-        return BaseApiResponse.success(responses);
+
+        return new BaseApiResponse<>(
+                ErrorMessages.STATUS_OK,
+                ErrorMessages.GRADES_BY_CURRICULUM_FETCHED,
+                responses
+        );
     }
 
     private GradeResponse toResponse(Grade grade) {

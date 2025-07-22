@@ -1,7 +1,9 @@
 package com.eduvod.eduvod.service.schooladmin.impl;
 
+import com.eduvod.eduvod.constants.ErrorMessages;
 import com.eduvod.eduvod.dto.request.schooladmin.GuardianRequest;
 import com.eduvod.eduvod.dto.response.schooladmin.GuardianResponse;
+import com.eduvod.eduvod.exception.ResourceNotFoundException;
 import com.eduvod.eduvod.model.schooladmin.Guardian;
 import com.eduvod.eduvod.repository.schooladmin.GuardianRepository;
 import com.eduvod.eduvod.service.schooladmin.GuardianService;
@@ -28,16 +30,19 @@ public class GuardianServiceImpl implements GuardianService {
     @Override
     public BaseApiResponse<GuardianResponse> updateGuardian(Long id, GuardianRequest request) {
         Guardian guardian = guardianRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Guardian not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.GUARDIAN_NOT_FOUND));
+
         updateEntity(guardian, request);
         guardianRepository.save(guardian);
+
         return BaseApiResponse.success(mapToResponse(guardian));
     }
+
 
     @Override
     public BaseApiResponse<Void> deleteGuardian(Long id) {
         Guardian guardian = guardianRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Guardian not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.GUARDIAN_NOT_FOUND));
         guardianRepository.delete(guardian);
         return BaseApiResponse.success();
     }

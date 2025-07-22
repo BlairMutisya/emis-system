@@ -1,5 +1,6 @@
 package com.eduvod.eduvod.service.schooladmin.impl;
 
+import com.eduvod.eduvod.constants.ErrorMessages;
 import com.eduvod.eduvod.dto.request.schooladmin.CreateClassRequest;
 import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.schooladmin.ClassResponse;
@@ -26,7 +27,7 @@ public class SchoolClassServiceImpl implements SchoolClassService {
     @Override
     public BaseApiResponse<ClassResponse> createClass(CreateClassRequest request) {
         var grade = gradeRepository.findById(request.getGradeId())
-                .orElseThrow(() -> new RuntimeException("Grade not found"));
+                .orElseThrow(() -> new RuntimeException(ErrorMessages.GRADE_NOT_FOUND));
 
         var schoolAdmin = authUtil.getCurrentSchoolAdmin();
         var school = schoolAdmin.getSchool();

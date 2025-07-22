@@ -1,7 +1,9 @@
 package com.eduvod.eduvod.service.schooladmin.impl;
 
+import com.eduvod.eduvod.constants.ErrorMessages;
 import com.eduvod.eduvod.dto.request.schooladmin.StreamRequest;
 import com.eduvod.eduvod.dto.response.schooladmin.StreamResponse;
+import com.eduvod.eduvod.exception.SchoolClassNotFoundException;
 import com.eduvod.eduvod.model.schooladmin.SchoolClass;
 import com.eduvod.eduvod.model.schooladmin.Stream;
 import com.eduvod.eduvod.repository.schooladmin.SchoolClassRepository;
@@ -24,7 +26,8 @@ public class StreamServiceImpl implements StreamService {
     @Override
     public BaseApiResponse<StreamResponse> createStream(StreamRequest request) {
         SchoolClass schoolClass = schoolClassRepository.findById(request.getClassId())
-                .orElseThrow(() -> new RuntimeException("Class not found"));
+                .orElseThrow(() -> new SchoolClassNotFoundException(ErrorMessages.CLASS_NOT_FOUND));
+
 
         Stream stream = Stream.builder()
                 .name(request.getName())
@@ -39,7 +42,7 @@ public class StreamServiceImpl implements StreamService {
     @Override
     public BaseApiResponse<List<StreamResponse>> getStreamsByClassId(Long classId) {
         SchoolClass schoolClass = schoolClassRepository.findById(classId)
-                .orElseThrow(() -> new RuntimeException("Class not found"));
+                .orElseThrow(() -> new SchoolClassNotFoundException(ErrorMessages.CLASS_NOT_FOUND));
 
         List<StreamResponse> streams = streamRepository.findBySchoolClass(schoolClass).stream()
                 .map(this::mapToResponse)

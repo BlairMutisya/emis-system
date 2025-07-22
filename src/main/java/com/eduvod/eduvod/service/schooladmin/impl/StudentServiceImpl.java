@@ -1,8 +1,12 @@
 package com.eduvod.eduvod.service.schooladmin.impl;
 
+import com.eduvod.eduvod.constants.ErrorMessages;
 import com.eduvod.eduvod.dto.request.schooladmin.StudentRequest;
 import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.schooladmin.StudentResponse;
+import com.eduvod.eduvod.exception.GuardianNotFoundException;
+import com.eduvod.eduvod.exception.StreamNotFoundException;
+import com.eduvod.eduvod.exception.StudentNotFoundException;
 import com.eduvod.eduvod.model.schooladmin.Guardian;
 import com.eduvod.eduvod.model.schooladmin.Stream;
 import com.eduvod.eduvod.model.schooladmin.Student;
@@ -29,43 +33,24 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public BaseApiResponse<StudentResponse> createStudent(Long streamId, StudentRequest request) {
         Stream stream = streamRepository.findById(streamId)
-                .orElseThrow(() -> new RuntimeException("Stream not found"));
+                .orElseThrow(() -> new StreamNotFoundException(ErrorMessages.STREAM_NOT_FOUND));
 
         Guardian guardian = null;
         if (request.getGuardianId() != null) {
             guardian = guardianRepository.findById(request.getGuardianId())
-                    .orElseThrow(() -> new RuntimeException("Guardian not found"));
+                    .orElseThrow(() -> new GuardianNotFoundException(ErrorMessages.GUARDIAN_NOT_FOUND));
         }
 
-        Student student = Student.builder()
-                .admissionNo(request.getAdmissionNo())
-                .nemisNo(request.getNemisNo())
-                .admissionDate(request.getAdmissionDate())
-                .firstName(request.getFirstName())
-                .middleName(request.getMiddleName())
-                .lastName(request.getLastName())
-                .dateOfBirth(request.getDateOfBirth())
-                .email(request.getEmail())
-                .gender(request.getGender())
-                .bloodGroup(request.getBloodGroup())
-                .nationality(request.getNationality())
-                .city(request.getCity())
-                .addressLine1(request.getAddressLine1())
-                .phone(request.getPhone())
-                .differentlyAbled(request.isDifferentlyAbled())
-                .disabled(false)
-                .stream(stream)
-                .guardian(guardian)
-                .build();
-
+        Student student = buildStudentFromRequest(request, stream, guardian);
         student = studentRepository.save(student);
 
         return BaseApiResponse.success(mapToResponse(student));
     }
+
     @Override
     public BaseApiResponse<StudentResponse> disableStudent(Long studentId) {
         Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new StudentNotFoundException(ErrorMessages.STUDENT_NOT_FOUND));
 
         student.setDisabled(true);
         studentRepository.save(student);
@@ -75,7 +60,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public BaseApiResponse<StudentResponse> updateStudent(Long studentId, StudentRequest request) {
         Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new StudentNotFoundException(ErrorMessages.STUDENT_NOT_FOUND));
 
         student.setAdmissionNo(request.getAdmissionNo());
         student.setNemisNo(request.getNemisNo());
@@ -95,7 +80,7 @@ public class StudentServiceImpl implements StudentService {
 
         if (request.getGuardianId() != null) {
             Guardian guardian = guardianRepository.findById(request.getGuardianId())
-                    .orElseThrow(() -> new RuntimeException("Guardian not found"));
+                    .orElseThrow(() -> new GuardianNotFoundException(ErrorMessages.GUARDIAN_NOT_FOUND));
             student.setGuardian(guardian);
         }
 
@@ -105,14 +90,14 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public BaseApiResponse<StudentResponse> getStudentById(Long id) {
         Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new StudentNotFoundException(ErrorMessages.STUDENT_NOT_FOUND));
 
         return BaseApiResponse.success(mapToResponse(student));
     }
     @Override
     public BaseApiResponse<List<StudentResponse>> getStudentsByStreamId(Long streamId) {
         Stream stream = streamRepository.findById(streamId)
-                .orElseThrow(() -> new RuntimeException("Stream not found"));
+                .orElseThrow(() -> new StreamNotFoundException(ErrorMessages.STREAM_NOT_FOUND));
 
         List<Student> students = studentRepository.findByStream(stream);
 
@@ -125,41 +110,66 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public BaseApiResponse<String> importStudents(Long streamId, MultipartFile file) throws Exception {
         var stream = streamRepository.findById(streamId)
-                .orElseThrow(() -> new RuntimeException("Stream not found"));
+                .orElseThrow(() -> new StreamNotFoundException(ErrorMessages.STREAM_NOT_FOUND));
 
         List<StudentRequest> studentRequests = ExcelStudentParserUtil.parse(file);
         List<Student> studentsToSave = new ArrayList<>();
 
         for (StudentRequest req : studentRequests) {
-            Student student = Student.builder()
-                    .admissionNo(req.getAdmissionNo())
-                    .nemisNo(req.getNemisNo())
-                    .admissionDate(req.getAdmissionDate())
-                    .firstName(req.getFirstName())
-                    .middleName(req.getMiddleName())
-                    .lastName(req.getLastName())
-                    .dateOfBirth(req.getDateOfBirth())
-                    .email(req.getEmail())
-                    .gender(req.getGender())
-                    .bloodGroup(req.getBloodGroup())
-                    .nationality(req.getNationality())
-                    .city(req.getCity())
-                    .addressLine1(req.getAddressLine1())
-                    .phone(req.getPhone())
-                    .differentlyAbled(req.isDifferentlyAbled())
-                    .stream(stream)
-                    .build();
+            Guardian guardian = null;
 
+            if (req.getGuardianId() != null) {
+                guardian = guardianRepository.findById(req.getGuardianId())
+                        .orElseThrow(() -> new GuardianNotFoundException(ErrorMessages.GUARDIAN_NOT_FOUND));
+            }
+
+            Student student = buildStudentFromRequest(req, stream, guardian);
             studentsToSave.add(student);
         }
+
+
 
         studentRepository.saveAll(studentsToSave);
         return new BaseApiResponse<>(201, "Students imported successfully", "Imported " + studentsToSave.size() + " students");
     }
+    @Override
+    public BaseApiResponse<StudentResponse> assignGuardian(Long studentId, Long guardianId) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new StudentNotFoundException(ErrorMessages.STUDENT_NOT_FOUND));
+
+        Guardian guardian = guardianRepository.findById(guardianId)
+                .orElseThrow(() -> new GuardianNotFoundException(ErrorMessages.GUARDIAN_NOT_FOUND));
+
+        student.setGuardian(guardian);
+        studentRepository.save(student);
+
+        return BaseApiResponse.success("Guardian assigned successfully", mapToResponse(student));
+    }
 
 
 
-
+    private Student buildStudentFromRequest(StudentRequest request, Stream stream, Guardian guardian) {
+        return Student.builder()
+                .admissionNo(request.getAdmissionNo())
+                .nemisNo(request.getNemisNo())
+                .admissionDate(request.getAdmissionDate())
+                .firstName(request.getFirstName())
+                .middleName(request.getMiddleName())
+                .lastName(request.getLastName())
+                .dateOfBirth(request.getDateOfBirth())
+                .email(request.getEmail())
+                .gender(request.getGender())
+                .bloodGroup(request.getBloodGroup())
+                .nationality(request.getNationality())
+                .city(request.getCity())
+                .addressLine1(request.getAddressLine1())
+                .phone(request.getPhone())
+                .differentlyAbled(request.isDifferentlyAbled())
+                .disabled(false)
+                .stream(stream)
+                .guardian(guardian)
+                .build();
+    }
 
     private StudentResponse mapToResponse(Student student) {
         return StudentResponse.builder()
@@ -183,4 +193,5 @@ public class StudentServiceImpl implements StudentService {
                 .guardianId(student.getGuardian() != null ? student.getGuardian().getId() : null)
                 .build();
     }
+
 }

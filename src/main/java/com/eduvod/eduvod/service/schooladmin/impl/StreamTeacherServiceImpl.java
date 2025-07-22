@@ -1,9 +1,14 @@
 package com.eduvod.eduvod.service.schooladmin.impl;
 
+import com.eduvod.eduvod.constants.ErrorMessages;
 import com.eduvod.eduvod.dto.request.schooladmin.AssignSubjectToTeacherRequest;
 import com.eduvod.eduvod.dto.request.schooladmin.AssignTeacherToStreamRequest;
 import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.schooladmin.StreamTeacherResponse;
+import com.eduvod.eduvod.exception.StreamNotFoundException;
+import com.eduvod.eduvod.exception.StreamTeacherNotFoundException;
+import com.eduvod.eduvod.exception.SubjectNotFoundException;
+import com.eduvod.eduvod.exception.TeacherNotFoundException;
 import com.eduvod.eduvod.model.schooladmin.*;
 import com.eduvod.eduvod.repository.schooladmin.*;
 import com.eduvod.eduvod.service.schooladmin.StreamTeacherService;
@@ -26,12 +31,11 @@ public class StreamTeacherServiceImpl implements StreamTeacherService {
     @Override
     public BaseApiResponse<StreamTeacherResponse> assignTeacherToStream(AssignTeacherToStreamRequest request) {
         Stream stream = streamRepository.findById(request.getStreamId())
-                .orElseThrow(() -> new RuntimeException("Stream not found"));
+                .orElseThrow(() -> new StreamNotFoundException(ErrorMessages.STREAM_NOT_FOUND));
 
         Staff staff = staffRepository.findById(request.getStaffId())
                 .filter(Staff::isTeacher)
-                .orElseThrow(() -> new RuntimeException("Teacher (staff marked as teacher) not found"));
-
+                .orElseThrow(() -> new TeacherNotFoundException(ErrorMessages.TEACHER_NOT_FOUND));
 
         StreamTeacher streamTeacher = StreamTeacher.builder()
                 .stream(stream)
@@ -47,11 +51,11 @@ public class StreamTeacherServiceImpl implements StreamTeacherService {
     @Override
     public BaseApiResponse<String> assignSubjectsToStreamTeacher(AssignSubjectToTeacherRequest request) {
         StreamTeacher streamTeacher = streamTeacherRepository.findById(request.getStreamTeacherId())
-                .orElseThrow(() -> new RuntimeException("StreamTeacher not found"));
+                .orElseThrow(() -> new StreamTeacherNotFoundException(ErrorMessages.STREAM_TEACHER_NOT_FOUND));
 
         for (Long subjectId : request.getSubjectIds()) {
             Subject subject = subjectRepository.findById(subjectId)
-                    .orElseThrow(() -> new RuntimeException("Subject not found"));
+                    .orElseThrow(() -> new SubjectNotFoundException(ErrorMessages.SUBJECT_NOT_FOUND));
 
             StreamTeacherSubject sts = StreamTeacherSubject.builder()
                     .streamTeacher(streamTeacher)
@@ -86,3 +90,4 @@ public class StreamTeacherServiceImpl implements StreamTeacherService {
                 .build();
     }
 }
+
