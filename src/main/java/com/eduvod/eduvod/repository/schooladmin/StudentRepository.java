@@ -17,6 +17,8 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     long countByStream_SchoolClass_Id(Long classId);
     long countByStream(Stream stream);
     List<Student> findByStream_SchoolClass_School(School school);
+    List<Student> findAllByStreamId(Long streamId);
+
 
 
 }

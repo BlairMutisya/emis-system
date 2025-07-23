@@ -23,8 +23,14 @@ public class StudentRequest {
     private String city;
     private String addressLine1;
     private String phone;
-
     private boolean differentlyAbled;
-
     private Long guardianId;
+    private String guardianFirstName;
+    private String guardianLastName;
+    private String guardianRelationship;
+    private String guardianEmail;
+    private String guardianPhone;
+    private Gender guardianGender;
+    private String guardianEmergencyContact;
+
 }

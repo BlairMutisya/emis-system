@@ -37,12 +37,13 @@ public class StaffServiceImpl implements StaffService {
                 .staffDepartment(request.getStaffDepartment())
                 .joiningDate(request.getJoiningDate())
                 .dateOfBirth(request.getDateOfBirth())
-                .isTeacher(request.isTeacher())
+                .teacher(request.isTeacher())
                 .disabled(false)
                 .school(school)
                 .build();
 
         staff = staffRepository.save(staff);
+
         return BaseApiResponse.success(mapToResponse(staff));
     }
 

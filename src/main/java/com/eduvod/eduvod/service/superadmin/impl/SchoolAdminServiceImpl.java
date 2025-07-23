@@ -41,6 +41,8 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
     private final EmailService emailService;
 
 
+
+
     public SchoolAdminResponse createSchoolAdmin(SchoolAdminRequest request) {
         Optional<User> existingUserOpt = userRepository.findByEmail(request.getEmail());
         User user;

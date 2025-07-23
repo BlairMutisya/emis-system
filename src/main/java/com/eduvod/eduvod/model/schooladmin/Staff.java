@@ -41,7 +41,7 @@ public class Staff {
 
     private LocalDate dateOfBirth;
 
-    private boolean isTeacher;
+    private boolean teacher;
 
     private boolean disabled;
 

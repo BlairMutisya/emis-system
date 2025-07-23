@@ -5,6 +5,7 @@ import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.schooladmin.StudentResponse;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 
 public interface StudentService {
@@ -15,5 +16,6 @@ public interface StudentService {
     BaseApiResponse<List<StudentResponse>> getStudentsByStreamId(Long streamId);
     BaseApiResponse<String> importStudents(Long streamId, MultipartFile file) throws Exception;
     BaseApiResponse<StudentResponse> assignGuardian(Long studentId, Long guardianId);
+    ByteArrayInputStream exportAllStudentsToExcel(Long streamId);
 
 }

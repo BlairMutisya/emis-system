@@ -11,9 +11,9 @@ import java.util.Optional;
 
 @Repository
 public interface StaffRepository extends JpaRepository<Staff, Long> {
-    long countByGenderAndIsTeacherTrue(Gender gender);
+    long countByGenderAndTeacherTrue(Gender gender);
     List<Staff> findBySchool(School school);
-    List<Staff> findBySchoolAndIsTeacherTrue(School school);
+    List<Staff> findBySchoolAndTeacherTrue(School school);
 
     List<Staff> findBySchoolAndDeletedFalse(School school);
 

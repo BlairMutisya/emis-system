@@ -43,7 +43,7 @@ public class DashboardServiceImpl implements DashboardService {
 
         // Teacher counts by gender (from staff with isTeacher = true)
         for (Gender gender : Gender.values()) {
-            long count = staffRepository.countByGenderAndIsTeacherTrue(gender);
+            long count = staffRepository.countByGenderAndTeacherTrue(gender);
             teacherCountByGender.put(gender.name(), count);
         }
 

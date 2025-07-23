@@ -7,12 +7,15 @@ import com.eduvod.eduvod.service.schooladmin.StudentService;
 import com.eduvod.eduvod.repository.schooladmin.StreamRepository;
 import com.eduvod.eduvod.util.ExcelStudentTemplateUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -86,7 +89,7 @@ public class StudentController {
         return studentService.getStudentsByStreamId(streamId);
     }
 
-    @Operation(summary = "Download Excel student import template for a stream")
+    @Operation(summary = "Download a blank Excel student import template for the students")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Excel template downloaded")
     })
@@ -112,6 +115,25 @@ public class StudentController {
         } catch (IOException e) {
             throw new RuntimeException("Error generating Excel template", e);
         }
+    }
+    @GetMapping("/export/stream/{streamId}")
+    @Operation(
+            summary = "Export students in Excel format",
+            description = "Generates and downloads an Excel file with all students in the specified stream"
+    )
+    public ResponseEntity<InputStreamResource> exportStudentsToExcel(
+            @Parameter(description = "ID of the stream to export students from") @PathVariable Long streamId,
+            HttpServletResponse response
+    ) {
+        ByteArrayInputStream excelStream = studentService.exportAllStudentsToExcel(streamId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=students_stream_" + streamId + ".xlsx");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(new InputStreamResource(excelStream));
     }
 
 

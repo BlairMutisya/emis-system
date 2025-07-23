@@ -1,6 +1,7 @@
 package com.eduvod.eduvod.util;
 
 import com.eduvod.eduvod.dto.request.schooladmin.StudentRequest;
+import com.eduvod.eduvod.dto.request.schooladmin.GuardianRequest;
 import com.eduvod.eduvod.enums.Gender;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,6 +38,14 @@ public class ExcelStudentParserUtil {
                 req.setAddressLine1(getString(row, 12));
                 req.setPhone(getString(row, 13));
                 req.setDifferentlyAbled(Boolean.parseBoolean(getString(row, 14)));
+                req.setGuardianFirstName(getString(row, 15));
+                req.setGuardianLastName(getString(row, 16));
+                req.setGuardianRelationship(getString(row, 17));
+                req.setGuardianEmail(getString(row, 18));
+                req.setGuardianPhone(getString(row, 19));
+                req.setGuardianGender(Gender.valueOf(getString(row, 20).toUpperCase()));
+                req.setGuardianEmergencyContact(getString(row, 21));
+
 
 
                 students.add(req);

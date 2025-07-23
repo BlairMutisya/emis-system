@@ -31,7 +31,7 @@ public class SchoolAdminDashboardServiceImpl implements SchoolAdminDashboardServ
         List<Student> students = studentRepository.findByStream_SchoolClass_School(school);
 
         // Filter staff who are flagged as teachers
-        List<Staff> teachers = staffRepository.findBySchoolAndIsTeacherTrue(school);
+        List<Staff> teachers = staffRepository.findBySchoolAndTeacherTrue(school);
 
         // Students by gender
         Map<String, Long> studentCountByGender = students.stream()

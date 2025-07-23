@@ -1,5 +1,6 @@
 package com.eduvod.eduvod.service.auth.impl;
 
+import com.eduvod.eduvod.dto.auth.PasswordChangeRequest;
 import com.eduvod.eduvod.dto.auth.PasswordResetRequest;
 import com.eduvod.eduvod.dto.auth.PasswordUpdateRequest;
 import com.eduvod.eduvod.model.shared.PasswordReset;
@@ -85,5 +86,18 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         userRepository.save(user);
         tokenRepository.delete(reset); // invalidate
     }
+    @Override
+    public void changePassword(PasswordChangeRequest request, String username) {
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new RuntimeException("Current password is incorrect");
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setMustChangePassword(false);
+        userRepository.save(user);
+    }
+
 
 }

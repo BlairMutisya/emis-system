@@ -54,8 +54,11 @@ public class SecurityConfig {
                                 "/configuration/**",
                                 "/api/v1/auth/**",
                                 "/api/v1/superadmin/schools/template-download",
-                                "/api/v1/superadmin/users/{id}/status"
-//                                "/api/v1/superadmin/**"
+                                "/api/v1/superadmin/users/{id}/status",
+                                "/api/v1/schooladmin/students/**",
+                                "/logos/**"
+//                                        "/api/v1/schooladmin/students/export/stream/{streamId}"
+
                         ).permitAll()
 
                         // Role-based secured endpoints

@@ -14,11 +14,14 @@ import com.eduvod.eduvod.repository.schooladmin.GuardianRepository;
 import com.eduvod.eduvod.repository.schooladmin.StreamRepository;
 import com.eduvod.eduvod.repository.schooladmin.StudentRepository;
 import com.eduvod.eduvod.service.schooladmin.StudentService;
+import com.eduvod.eduvod.util.ExcelStudentExportUtil;
 import com.eduvod.eduvod.util.ExcelStudentParserUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,7 +112,7 @@ public class StudentServiceImpl implements StudentService {
     }
     @Override
     public BaseApiResponse<String> importStudents(Long streamId, MultipartFile file) throws Exception {
-        var stream = streamRepository.findById(streamId)
+        Stream stream = streamRepository.findById(streamId)
                 .orElseThrow(() -> new StreamNotFoundException(ErrorMessages.STREAM_NOT_FOUND));
 
         List<StudentRequest> studentRequests = ExcelStudentParserUtil.parse(file);
@@ -118,20 +121,45 @@ public class StudentServiceImpl implements StudentService {
         for (StudentRequest req : studentRequests) {
             Guardian guardian = null;
 
+            // If guardian ID is provided (optional use case)
             if (req.getGuardianId() != null) {
                 guardian = guardianRepository.findById(req.getGuardianId())
                         .orElseThrow(() -> new GuardianNotFoundException(ErrorMessages.GUARDIAN_NOT_FOUND));
+            }
+
+            // If guardian data is provided, create new Guardian
+            if (guardian == null && req.getGuardianFirstName() != null && !req.getGuardianFirstName().isBlank()) {
+                guardian = Guardian.builder()
+                        .firstName(req.getGuardianFirstName())
+                        .lastName(req.getGuardianLastName())
+                        .relationship(req.getGuardianRelationship())
+                        .email(req.getGuardianEmail())
+                        .phone(req.getGuardianPhone())
+                        .gender(req.getGuardianGender())
+                        .emergencyContact(req.getGuardianEmergencyContact())
+                        .build();
+
+                guardian = guardianRepository.save(guardian); // Save and assign the guardian
             }
 
             Student student = buildStudentFromRequest(req, stream, guardian);
             studentsToSave.add(student);
         }
 
-
-
         studentRepository.saveAll(studentsToSave);
         return new BaseApiResponse<>(201, "Students imported successfully", "Imported " + studentsToSave.size() + " students");
     }
+
+    @Override
+    public ByteArrayInputStream exportAllStudentsToExcel(Long streamId) {
+        List<Student> students = studentRepository.findAllByStreamId(streamId);
+        try {
+            return ExcelStudentExportUtil.exportStudentsToExcel(students);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to generate Excel file: " + e.getMessage(), e);
+        }
+    }
+
     @Override
     public BaseApiResponse<StudentResponse> assignGuardian(Long studentId, Long guardianId) {
         Student student = studentRepository.findById(studentId)

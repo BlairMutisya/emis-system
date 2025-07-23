@@ -17,5 +17,5 @@ public class StaffRequest {
     private String staffDepartment;
     private LocalDate joiningDate;
     private LocalDate dateOfBirth;
-    private boolean isTeacher;
+    private boolean teacher;
 }

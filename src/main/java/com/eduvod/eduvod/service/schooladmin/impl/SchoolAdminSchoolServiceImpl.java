@@ -17,10 +17,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -30,8 +34,8 @@ public class SchoolAdminSchoolServiceImpl implements SchoolService {
     private final SchoolRepository schoolRepository;
     private final SchoolAdminRepository schoolAdminRepository;
     private final AuthUtil authUtil;
-
     private static final String LOGO_UPLOAD_DIR = "uploads/logos/";
+
 
     @Override
     public SchoolResponse getSchoolForLoggedInAdmin() {
@@ -55,19 +59,31 @@ public class SchoolAdminSchoolServiceImpl implements SchoolService {
             throw new ResourceNotFoundException(ErrorMessages.SCHOOL_NOT_ASSIGNED);
         }
 
-
         try {
-            // Save file
-            String fileName = "school_" + school.getId() + "_" + file.getOriginalFilename();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+            String timestamp = LocalDateTime.now().format(formatter);
+
+            // Create a new file name with timestamp
+            String originalFileName = file.getOriginalFilename();
+            String newFileName = "school_" + school.getId() + "_" + timestamp + "_" + originalFileName;
             Path uploadPath = Paths.get(LOGO_UPLOAD_DIR);
 
+            // Create directory if missing
             if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
 
-            Path filePath = uploadPath.resolve(fileName);
-            Files.copy(file.getInputStream(), filePath);
+            // DELETE OLD LOGO if exists
+            String oldLogoUrl = school.getLogoUrl();
+            if (oldLogoUrl != null && !oldLogoUrl.isBlank()) {
+                Path oldLogoPath = Paths.get(LOGO_UPLOAD_DIR + File.separator + Paths.get(oldLogoUrl).getFileName());
+                Files.deleteIfExists(oldLogoPath);
+            }
 
-            // Set logo URL (you can serve this via a static resource handler)
-            String logoUrl = "/logos/" + fileName;
+            // Save new file
+            Path newFilePath = uploadPath.resolve(newFileName);
+            Files.copy(file.getInputStream(), newFilePath, StandardCopyOption.REPLACE_EXISTING);
+
+            // Update school logo URL
+            String logoUrl = "/logos/" + newFileName;
             school.setLogoUrl(logoUrl);
             schoolRepository.save(school);
 
@@ -76,8 +92,8 @@ public class SchoolAdminSchoolServiceImpl implements SchoolService {
         } catch (IOException e) {
             throw new RuntimeException(ErrorMessages.LOGO_UPLOAD_FAILED, e);
         }
-
     }
+
 
     private SchoolResponse mapToResponse(School school) {
         return SchoolResponse.builder()
