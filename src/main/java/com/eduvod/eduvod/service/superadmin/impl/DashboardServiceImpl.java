@@ -79,7 +79,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .teacherCountByGender(teacherCountByGender)
                 .guardianCount(guardianCount)
                 .studentsPerClass(studentsPerClass)
-                .studentsPerStream(studentsPerStream)
+//                .studentsPerStream(studentsPerStream)
                 .schoolsPerRegion(schoolsPerRegion)
                 .build();
 
