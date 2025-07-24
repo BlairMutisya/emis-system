@@ -18,4 +18,5 @@ public class DashboardResponse {
     private Long guardianCount;
     private Map<String, Long> studentsPerClass;
     private Map<String, Long> studentsPerStream;
+    private Map<String, Long> schoolsPerRegion;
 }

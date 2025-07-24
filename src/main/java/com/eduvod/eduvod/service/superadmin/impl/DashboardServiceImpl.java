@@ -4,12 +4,15 @@ import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import com.eduvod.eduvod.dto.response.superadmin.DashboardResponse;
 import com.eduvod.eduvod.enums.Gender;
 import com.eduvod.eduvod.repository.schooladmin.*;
+import com.eduvod.eduvod.repository.superadmin.SchoolRepository;
 import com.eduvod.eduvod.service.superadmin.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +23,7 @@ public class DashboardServiceImpl implements DashboardService {
     private final StaffRepository staffRepository;
     private final SchoolClassRepository schoolClassRepository;
     private final StreamRepository streamRepository;
+    private final SchoolRepository schoolRepository;
 
     @Override
     public BaseApiResponse<DashboardResponse> getDashboardStats() {
@@ -61,6 +65,13 @@ public class DashboardServiceImpl implements DashboardService {
             long count = studentRepository.countByStream(stream);
             studentsPerStream.put(stream.getName(), count);
         });
+        List<Object[]> result = schoolRepository.countSchoolsByRegion();
+        Map<String, Long> schoolsPerRegion = result.stream()
+                .collect(Collectors.toMap(
+                        r -> (String) r[0],
+                        r -> (Long) r[1]
+                ));
+
 
         DashboardResponse response = DashboardResponse.builder()
                 .studentCountByGender(studentCountByGender)
@@ -69,6 +80,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .guardianCount(guardianCount)
                 .studentsPerClass(studentsPerClass)
                 .studentsPerStream(studentsPerStream)
+                .schoolsPerRegion(schoolsPerRegion)
                 .build();
 
         return BaseApiResponse.success("Dashboard stats fetched successfully", response);
