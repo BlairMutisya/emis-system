@@ -8,8 +8,10 @@ import com.eduvod.eduvod.exception.DuplicateResourceException;
 import com.eduvod.eduvod.exception.ResourceNotFoundException;
 import com.eduvod.eduvod.model.superadmin.CurriculumType;
 import com.eduvod.eduvod.model.superadmin.Grade;
+import com.eduvod.eduvod.model.superadmin.School;
 import com.eduvod.eduvod.repository.superadmin.CurriculumTypeRepository;
 import com.eduvod.eduvod.repository.superadmin.GradeRepository;
+import com.eduvod.eduvod.repository.superadmin.SchoolRepository;
 import com.eduvod.eduvod.service.superadmin.GradeService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class GradeServiceImpl implements GradeService {
 
     private final GradeRepository gradeRepository;
     private final CurriculumTypeRepository curriculumTypeRepository;
+    private final SchoolRepository schoolRepository;
 
     @Override
     public BaseApiResponse<GradeResponse> createGrade(GradeRequest request) {
@@ -74,6 +77,30 @@ public class GradeServiceImpl implements GradeService {
                 "Grade deleted successfully"
         );
     }
+    @Override
+    public BaseApiResponse<List<GradeResponse>> getGradesForSchool(Long schoolId) {
+        School school = schoolRepository.findById(schoolId)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.SCHOOL_NOT_FOUND));
+
+        CurriculumType curriculum = school.getCurriculum();
+
+        if (curriculum == null) {
+            throw new ResourceNotFoundException("Curriculum not linked to this school");
+        }
+
+        List<Grade> grades = gradeRepository.findByCurriculumId(curriculum.getId());
+
+        List<GradeResponse> responses = grades.stream()
+                .map(this::toResponse)
+                .toList();
+
+        return new BaseApiResponse<>(
+                ErrorMessages.STATUS_OK,
+                "Grades for school fetched successfully",
+                responses
+        );
+    }
+
 
     @Override
     public BaseApiResponse<List<GradeResponse>> getGradesByCurriculum(Long curriculumId) {

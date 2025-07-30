@@ -10,6 +10,8 @@ public interface GradeService {
     BaseApiResponse<GradeResponse> createGrade(GradeRequest request);
     BaseApiResponse<List<GradeResponse>> getAllGrades();
     BaseApiResponse<List<GradeResponse>> getGradesByCurriculum(Long curriculumId);
+    BaseApiResponse<List<GradeResponse>> getGradesForSchool(Long schoolId);
+
 
     BaseApiResponse<String> deleteGrade(Long gradeId);
 

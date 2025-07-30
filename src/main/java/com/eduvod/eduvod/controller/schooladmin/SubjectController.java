@@ -61,7 +61,7 @@ public class SubjectController {
                     content = @Content(schema = @Schema(implementation = SubjectResponse.class)))
     })
     @GetMapping
-    public BaseApiResponse<List<SubjectResponse>> getAllSubjects() {
-        return subjectService.getAllSubjects();
+    public BaseApiResponse<List<SubjectResponse>> getSubjectsForCurrentSchool() {
+        return subjectService.getAllSubjectsForSchool();
     }
 }

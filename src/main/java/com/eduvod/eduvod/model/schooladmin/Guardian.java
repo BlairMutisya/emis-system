@@ -31,8 +31,8 @@ public class Guardian {
 
     private String emergencyContact;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "student_id", nullable = true)
     private Student student;
 
     @ManyToOne(fetch = FetchType.LAZY)

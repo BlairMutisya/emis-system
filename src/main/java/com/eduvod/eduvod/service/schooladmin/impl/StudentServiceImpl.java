@@ -169,7 +169,9 @@ public class StudentServiceImpl implements StudentService {
                 .orElseThrow(() -> new GuardianNotFoundException(ErrorMessages.GUARDIAN_NOT_FOUND));
 
         student.setGuardian(guardian);
+        guardian.setStudent(student);
         studentRepository.save(student);
+        guardianRepository.save(guardian);
 
         return BaseApiResponse.success("Guardian assigned successfully", mapToResponse(student));
     }

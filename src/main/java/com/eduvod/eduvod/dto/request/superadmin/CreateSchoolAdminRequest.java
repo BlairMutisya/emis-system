@@ -20,8 +20,8 @@ public class CreateSchoolAdminRequest {
     @Email(message = "Valid email is required")
     private String email;
 
-    @Size(min = 6, message = "Password must be at least 6 characters")
-    private String password;
+//    @Size(min = 6, message = "Password must be at least 6 characters")
+//    private String password;
 
-    private UUID schoolId; // Optional: can be null during creation
+    private UUID schoolId;
 }

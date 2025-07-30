@@ -204,7 +204,7 @@ public class SchoolAdminServiceImpl implements SchoolAdminService {
     private SchoolAdminResponse mapToResponse(SchoolAdmin admin) {
         return SchoolAdminResponse.builder()
                 .id(admin.getId())
-                .username(admin.getUser().getUsername())
+                .username(admin.getUser().getActualUsername())
                 .email(admin.getUser().getEmail())
                 .schoolName(admin.getSchool() != null ? admin.getSchool().getName() : null)
                 .status(admin.getStatus())

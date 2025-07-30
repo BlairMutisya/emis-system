@@ -28,10 +28,12 @@ public class GradeController {
             @ApiResponse(responseCode = "200", description = "Grade created successfully",
                     content = @Content(schema = @Schema(implementation = GradeResponse.class)))
     })
+
     @PostMapping
     public BaseApiResponse<GradeResponse> createGrade(@RequestBody GradeRequest request) {
         return gradeService.createGrade(request);
     }
+
 
     @Operation(summary = "Get all grades")
     @ApiResponses(value = {

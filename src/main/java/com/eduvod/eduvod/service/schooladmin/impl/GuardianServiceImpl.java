@@ -5,11 +5,14 @@ import com.eduvod.eduvod.dto.request.schooladmin.GuardianRequest;
 import com.eduvod.eduvod.dto.response.schooladmin.GuardianResponse;
 import com.eduvod.eduvod.exception.ResourceNotFoundException;
 import com.eduvod.eduvod.model.schooladmin.Guardian;
+import com.eduvod.eduvod.model.superadmin.School;
+import com.eduvod.eduvod.model.superadmin.SchoolAdmin;
 import com.eduvod.eduvod.repository.schooladmin.GuardianRepository;
 import com.eduvod.eduvod.service.schooladmin.GuardianService;
 import com.eduvod.eduvod.dto.response.common.BaseApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.eduvod.eduvod.security.util.AuthUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,13 +22,25 @@ import java.util.stream.Collectors;
 public class GuardianServiceImpl implements GuardianService {
 
     private final GuardianRepository guardianRepository;
+    private final AuthUtil authUtil;
+
 
     @Override
     public BaseApiResponse<GuardianResponse> createGuardian(GuardianRequest request) {
+        SchoolAdmin schoolAdmin = authUtil.getCurrentSchoolAdmin();
+        School school = schoolAdmin.getSchool();
+
+        if (school == null) {
+            throw new IllegalStateException("School admin is not assigned to a school.");
+        }
+
         Guardian guardian = mapToEntity(request);
+        guardian.setSchool(school);
+
         guardianRepository.save(guardian);
         return BaseApiResponse.success(mapToResponse(guardian));
     }
+
 
     @Override
     public BaseApiResponse<GuardianResponse> updateGuardian(Long id, GuardianRequest request) {
@@ -49,12 +64,22 @@ public class GuardianServiceImpl implements GuardianService {
 
     @Override
     public BaseApiResponse<List<GuardianResponse>> getAllGuardians() {
-        List<GuardianResponse> responses = guardianRepository.findAll()
-                .stream()
+        SchoolAdmin schoolAdmin = authUtil.getCurrentSchoolAdmin();
+        School school = schoolAdmin.getSchool();
+
+        if (school == null) {
+            return BaseApiResponse.success(List.of());
+        }
+
+        List<Guardian> guardians = guardianRepository.findBySchool(school);
+        List<GuardianResponse> responseList = guardians.stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
-        return BaseApiResponse.success(responses);
+                .toList();
+
+        return BaseApiResponse.success(responseList);
     }
+
+
 
     private Guardian mapToEntity(GuardianRequest request) {
         return Guardian.builder()
